@@ -7,6 +7,12 @@ DB_USER = st.secrets["db"]["user"]
 DB_PASSWORD = st.secrets["db"]["password"]
 DB_HOST = st.secrets["db"]["host"]
 DB_PORT = st.secrets["db"]["port"]
+PASSCODE = st.secrets["app"]["passcode"]
+
+# Authenticate user
+def authenticate():
+    passcode = st.sidebar.text_input("Enter Passcode", type="password")
+    return passcode == PASSCODE
 
 # Connect to the database
 def get_connection():
@@ -41,6 +47,40 @@ def create_table():
         """)
         conn.commit()
         conn.close()
+
+# Insert data into the database
+def insert_entry(scientist_name, discovery_date, title, description, links, tags):
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO discoveries (scientist_name, discovery_date, title, description, links, tags)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (scientist_name, discovery_date, title, description, links, tags))
+        conn.commit()
+        conn.close()
+
+# Fetch all entries from the database
+def fetch_entries():
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM discoveries")
+        data = cursor.fetchall()
+        conn.close()
+        return data
+    return []
+
+# Display the timeline
+def display_timeline():
+    entries = fetch_entries()
+    for entry in entries:
+        st.write(f"**{entry[2]}** ({entry[1]})")
+        st.write(f"**Scientist:** {entry[1]}")
+        st.write(f"**Description:** {entry[3]}")
+        st.write(f"**Links:** {entry[4]}")
+        st.write(f"**Tags:** {entry[5]}")
+        st.write("---")
 
 # Main app function
 def main():

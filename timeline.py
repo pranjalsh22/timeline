@@ -1,83 +1,46 @@
 import streamlit as st
 import psycopg2
-from dotenv import load_dotenv
-import os
-
-# Load environment variables
-load_dotenv()
-
 
 # Access secrets
 DB_NAME = st.secrets["db"]["name"]
 DB_USER = st.secrets["db"]["user"]
 DB_PASSWORD = st.secrets["db"]["password"]
 DB_HOST = st.secrets["db"]["host"]
-DB_PORT = st.secrets
+DB_PORT = st.secrets["db"]["port"]
 
-# Connect to PostgreSQL database
+# Connect to the database
 def get_connection():
-    return psycopg2.connect(
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        host=DB_HOST,
-        port=DB_PORT
-    )
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
+        )
+        return conn
+    except Exception as e:
+        st.error(f"Database connection failed: {e}")
+        return None
 
 # Create table if it doesn't exist
 def create_table():
     conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS discoveries (
-        id SERIAL PRIMARY KEY,
-        scientist_name TEXT,
-        discovery_date TEXT,
-        title TEXT,
-        description TEXT,
-        links TEXT,
-        tags TEXT
-    )
-    """)
-    conn.commit()
-    conn.close()
-
-# Insert data into the database
-def insert_entry(scientist_name, discovery_date, title, description, links, tags):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-    INSERT INTO discoveries (scientist_name, discovery_date, title, description, links, tags)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    """, (scientist_name, discovery_date, title, description, links, tags))
-    conn.commit()
-    conn.close()
-
-# Fetch all entries from the database
-def fetch_entries():
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM discoveries")
-    data = cursor.fetchall()
-    conn.close()
-    return data
-
-# Authenticate user with a passcode
-def authenticate():
-    PASSCODE = os.getenv("PASSCODE")
-    passcode = st.sidebar.text_input("Enter Passcode", type="password")
-    return passcode == PASSCODE
-
-# Display the timeline
-def display_timeline():
-    entries = fetch_entries()
-    for entry in entries:
-        st.write(f"**{entry[2]}** ({entry[1]})")
-        st.write(f"**Scientist:** {entry[1]}")
-        st.write(f"**Description:** {entry[3]}")
-        st.write(f"**Links:** {entry[4]}")
-        st.write(f"**Tags:** {entry[5]}")
-        st.write("---")
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS discoveries (
+            id SERIAL PRIMARY KEY,
+            scientist_name TEXT,
+            discovery_date TEXT,
+            title TEXT,
+            description TEXT,
+            links TEXT,
+            tags TEXT
+        )
+        """)
+        conn.commit()
+        conn.close()
 
 # Main app function
 def main():

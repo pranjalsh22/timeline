@@ -6,13 +6,13 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Database connection details
-DB_NAME=timeline
-DB_USER=postgres
-DB_PASSWORD=pranjalpalak
-DB_HOST=db.xlabuzvmqnuqtrkfyxif.supabase.co
-DB_PORT=5432
-PASSCODE=pranjalpalak
+
+# Access secrets
+DB_NAME = st.secrets["db"]["name"]
+DB_USER = st.secrets["db"]["user"]
+DB_PASSWORD = st.secrets["db"]["password"]
+DB_HOST = st.secrets["db"]["host"]
+DB_PORT = st.secrets
 
 # Connect to PostgreSQL database
 def get_connection():

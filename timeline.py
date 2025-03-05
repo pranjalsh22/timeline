@@ -80,7 +80,7 @@ def display_timeline():
             A,B = st.columns([4,1])
             with A:
                 st.info(f"{entry[3]}  by {entry[1]} in {entry[2]}")
-                st.markdown({entry[6]})
+                
                 st.success(f"{entry[4]}")
                 st.markdown({entry[5]})
             with B:

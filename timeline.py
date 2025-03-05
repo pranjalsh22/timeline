@@ -77,7 +77,7 @@ def display_timeline():
     for entry in entries:
         # indexes : title(3) by(1) in(2) description(4) link(5) tags(6)
         if st.button(f"{entry[3]}"):
-            A,B = st.columns(4,1)
+            A,B = st.columns([4,1])
             with A:
                 st.info(f"{entry[3]}  by {entry[1]} in {entry[2]}")
                 st.markdown({entry[6]})

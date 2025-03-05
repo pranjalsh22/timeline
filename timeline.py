@@ -75,12 +75,12 @@ def fetch_entries():
 def display_timeline():
     entries = fetch_entries()
     for entry in entries:
-        st.info(f"{entry[3]}")
-        st.write(f" By {entry[1]}")
-        st.write(f" in {entry[2]}")
-        st.write(f"{entry[4]}")
-        st.markdown({entry[5]})
-        st.write({entry[6]})
+        # indexes : title(3) by(1) in(2) description(4) link(5) tags(6)
+        if st.button(f"{entry[3]}"):
+            st.info(f"{entry[3]}  by {entry[1]} in {entry[2]}")
+            st.write(f"{entry[4]}")
+            st.markdown({entry[5]})
+            st.write({entry[6]})
         
 
 # Main app function

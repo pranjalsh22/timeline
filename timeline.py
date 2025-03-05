@@ -75,9 +75,9 @@ def fetch_entries():
 def display_timeline():
     entries = fetch_entries()
     for entry in entries:
-        st.info({entry[3]})
-        st.write(f" By {{entry[1]}}")
-        st.write(f" in {{entry[2]}}")
+        st.info(f"{entry[3]}")
+        st.write(f" By {entry[1]}")
+        st.write(f" in {entry[2]}")
         st.write(f"{entry[4]}")
         st.markdown({entry[5]})
         st.write({entry[6]})

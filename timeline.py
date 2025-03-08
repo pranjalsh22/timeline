@@ -75,9 +75,17 @@ def fetch_entries():
 def display_timeline():
     entries = fetch_entries()
 
-    # Get min and max dates from the database to scale events vertically
-    min_date = min([parse_date(entry[2]) for entry in entries if parse_date(entry[2]) is not None])
-    max_date = max([parse_date(entry[2]) for entry in entries if parse_date(entry[2]) is not None])
+    # Parse all dates and filter out None values
+    valid_dates = [parse_date(entry[2]) for entry in entries]
+    valid_dates = [date for date in valid_dates if date is not None]
+
+    # Ensure there are valid dates to compute min and max
+    if valid_dates:
+        min_date = min(valid_dates)
+        max_date = max(valid_dates)
+    else:
+        st.error("No valid dates found in the entries.")
+        return
 
     # Create a timeline line using CSS
     st.markdown("""
@@ -111,6 +119,10 @@ def display_timeline():
 
         # Normalize event date (both BC and AD)
         normalized_position = parse_date(event_date)
+
+        # If the date could not be parsed, skip this event
+        if normalized_position is None:
+            continue
 
         # Calculate position on the timeline (scaled for display)
         height_position = int((normalized_position - min_date) / (max_date - min_date) * 600)  # 600px height for the timeline
@@ -148,6 +160,7 @@ def parse_date(date_str):
             date_obj = datetime.datetime.strptime(date_str, "%Y AD")
             return date_obj.year
         else:
+            st.warning(f"Skipping invalid date format: {date_str}")
             return None
     except Exception as e:
         st.error(f"Error parsing date {date_str}: {e}")

@@ -72,7 +72,6 @@ def fetch_entries():
     return []
 
 # ----------------MAKING TIMELINE-----------------------------------------------
-
 def display_timeline():
     entries = fetch_entries()
 
@@ -101,6 +100,7 @@ def display_timeline():
         "    margin-left: 50%;"
         "    margin-top: 50px;"
         "    height: {timeline_height}px;"
+        "    z-index: 10;"  # Ensure it's above other elements
         "}"
         ".event {"
         "    position: absolute;"
@@ -108,6 +108,7 @@ def display_timeline():
         "    transform: translateX(-50%);"
         "    width: 200px;"  # Width of the event expander
         "    margin-left: -100px;"  # Centering the expander
+        "    z-index: 5;"  # Ensure events appear above the timeline
         "}"
         "</style>", unsafe_allow_html=True
     )

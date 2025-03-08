@@ -1,6 +1,18 @@
 import streamlit as st
 import psycopg2
 import datetime
+#---------------------------BACKGROUND----------------------------------------------------
+st.markdown(
+    """
+    <style>
+        body {
+            background-color: #ADD8E6;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ----------------Access secrets----------------------------------------------------------------------------
 DB_NAME = st.secrets["db"]["name"]
@@ -195,15 +207,3 @@ if authenticate():
 
 # Display the timeline
 display_timeline()
-#---------------------------BACKGROUND----------------------------------------------------
-st.markdown(
-    """
-    <style>
-        body {
-            background-color: #ADD8E6;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-

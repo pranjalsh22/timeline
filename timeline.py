@@ -99,17 +99,10 @@ def display_timeline():
     with left_column:
         st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-        # Calculate the dates and their positions for the left side (timeline markings)
-        for i, entry in enumerate(entries):
-            event_date = entry[2]
-            normalized_position = parse_date(event_date)
-            if normalized_position is None:
-                continue
-
-            height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
-
-            # Place date markings along the left side
-            st.markdown(f'<div class="mark" style="top: {height_position}px;">{event_date}</div>', unsafe_allow_html=True)
+        # Create date markings every 100 years
+        for year in range(min_date - (min_date % 100), max_date + 100, 100):
+            height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
+            st.markdown(f'<div class="mark" style="top: {height_position}px;">{year}</div>', unsafe_allow_html=True)
 
     # Right side: Event expanders
     with right_column:
@@ -140,6 +133,7 @@ def display_timeline():
                 "</div>"
                 "</div>", unsafe_allow_html=True
             )
+
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

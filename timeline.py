@@ -101,7 +101,7 @@ def display_timeline():
             <style>
                 .timeline {
                     height: 100%;  /* Full height of the column */
-                    width: 5px;  /* Small width for the line */
+                    width: 10px;  /* Small width for the line */
                     background-color: white;
                     position: relative;
                     z-index: 1; /* Ensure it stays above the background */

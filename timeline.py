@@ -1,5 +1,6 @@
 import streamlit as st
 import psycopg2
+import datetime
 
 #----------------Access secrets----------------------------------------------------------------------------
 DB_NAME = st.secrets["db"]["name"]
@@ -73,30 +74,84 @@ def fetch_entries():
 
 def display_timeline():
     entries = fetch_entries()
-    for entry in entries:
-        # indexes : title(3) by(1) in(2) description(4) link(5) tags(6)
-        if st.button(f"{entry[3]}"):
-            with st.expander("details"):
-                A,B = st.columns([4,1])
-                with A:
-                    st.info(f"{entry[3]}  by {entry[1]} in {entry[2]}")
-                    
-                    st.success(f"{entry[4]}")
-                    st.markdown({entry[5]})
-                with B:
-                    st.success(f"{entry[6]}")
-            
-timeline_html = """
-<div style="width: 100%; height: 10px; background-color: #000; margin-top: 30px;">
-</div>
-"""
-st.markdown(timeline_html, unsafe_allow_html=True)
 
-# Add some space
+    # Create a timeline line using CSS
+    st.markdown("""
+    <style>
+        .timeline {
+            position: relative;
+            width: 10px;
+            background-color: black;
+            margin-left: 50%;
+            margin-top: 50px;
+            height: 600px;
+        }
+        .event {
+            position: absolute;
+            width: 150px;
+            padding: 5px;
+            background-color: lightblue;
+            border: 1px solid black;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Create the timeline line in the center
+    st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
+
+    # Get min and max dates from the database to scale events vertically
+    min_date = min([datetime.datetime.strptime(entry[2], "%Y-%m-%d") for entry in entries if 'BC' not in entry[2]])
+    max_date = max([datetime.datetime.strptime(entry[2], "%Y-%m-%d") for entry in entries if 'AD' in entry[2]])
+
+    # Function to normalize BC dates and AD dates
+    def normalize_date(date_str):
+        if 'BC' in date_str:
+            date_obj = datetime.datetime.strptime(date_str, "%Y BC")
+            return -date_obj.year
+        elif 'AD' in date_str:
+            date_obj = datetime.datetime.strptime(date_str, "%Y AD")
+            return date_obj.year
+        else:
+            return 0
+
+    # Loop through entries and display them on the vertical timeline
+    for i, entry in enumerate(entries):
+        event_date = entry[2]
+
+        # Normalize event date (both BC and AD)
+        normalized_position = normalize_date(event_date)
+
+        # Calculate position on the timeline (scaled for display)
+        height_position = int((normalized_position - min_date.year) / (max_date.year - min_date.year) * 600)  # 600px height for the timeline
+
+        # Display the event as a button and expanders for details
+        event_button = st.button(f"{entry[3]} - {entry[2]}", key=f"button_{i}")
+
+        # When button is clicked, show details in an expander
+        if event_button:
+            with st.expander(f"Details of {entry[3]}"):
+                A, B = st.columns([4, 1])
+                with A:
+                    st.info(f"{entry[3]} by {entry[1]} in {entry[2]}")
+                    st.success(f"{entry[4]}")
+                    st.markdown(f"[{entry[5]}]({entry[4]})")
+                with B:
+                    st.success(f"Tags: {entry[6]}")
+
+        # Create the event marker on the timeline (placed vertically)
+        st.markdown(f"""
+        <div class="event" style="top: {height_position}px;">
+            {entry[3]}
+        </div>
+        """, unsafe_allow_html=True)
+
+# Add some space after the timeline
 st.markdown("<br>", unsafe_allow_html=True)
 
 #---------------------MAIN--------------------------------------------------------
-st.title("Physics Discoveries Timeline")
+st.title("Physics and Mathematics Discoveries Timeline")
 st.sidebar.header("Add New Entry")
 create_table()
 
@@ -118,4 +173,3 @@ if authenticate():
 
 # Display the timeline
 display_timeline()
-

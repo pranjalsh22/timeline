@@ -175,18 +175,18 @@ def display_timeline():
 
         # Create the event expander
       st.markdown(
-    f"<div class=\"event\" style=\"top: {height_position}px;\">"
-    "<div class=\"expander\">"
-    "<details>"
-    f"<summary>{entry[3]} ({entry[2]})</summary>"
-    f"<p><strong>Scientist:</strong> {entry[1]}</p>"
-    f"<p>{entry[4]}</p>"
-    f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
-    f"<p><strong>Tags:</strong> {entry[6]}</p>"
-    "</details>"
-    "</div>"
-    "</div>", unsafe_allow_html=True
-)
+        f"<div class=\"event\" style=\"top: {height_position}px;\">"
+        "<div class=\"expander\">"
+        "<details>"
+        f"<summary>{entry[3]} ({entry[2]})</summary>"
+        f"<p><strong>Scientist:</strong> {entry[1]}</p>"
+        f"<p>{entry[4]}</p>"
+        f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
+        f"<p><strong>Tags:</strong> {entry[6]}</p>"
+        "</details>"
+        "</div>"
+        "</div>", unsafe_allow_html=True
+    )
 
 
     st.markdown('</div>', unsafe_allow_html=True)  # End right section

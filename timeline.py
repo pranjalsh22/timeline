@@ -88,32 +88,39 @@ def display_timeline():
 
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
-    left_column_width = 150  # Width for the left part (for date markings)
-    middle_column_width = 10  # Width for the white line
     right_column_width = 600  # Width for the right part (for expanders)
 
     # Create a container for the layout using st.columns
-    left_column, middle_column, right_column = st.columns([left_column_width, middle_column_width, right_column_width])
-
-    # Left side: Date markings (every 100 years, starting from the oldest entry)
-    with left_column:
-        for year in range(min_date, max_date + 100, 100):  # Marking from the oldest going forward
-            # Handling BC and AD dates properly
-            if year < 0:  # BC
-                display_year = f"{abs(year)} BC"
-            else:  # AD
-                display_year = f"{year} AD"
-
-            # Calculate the position for each marking on the timeline
-            height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
-            st.markdown(f'<div class="mark" style="top: {height_position}px;">{display_year}</div>', unsafe_allow_html=True)
-
-    # Middle side: White line
-    with middle_column:
-        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
+    right_column = st.columns([right_column_width])[0]
 
     # Right side: Event expanders
     with right_column:
+        # Create the white vertical line in the center of the screen
+        st.markdown("""
+            <style>
+                .timeline {
+                    position: fixed;
+                    left: 50%;
+                    top: 0;
+                    height: 100vh;
+                    width: 10px;
+                    background-color: white;
+                }
+                .event {
+                    position: absolute;
+                    left: 60%;
+                    width: 100%;
+                }
+                .expander {
+                    width: 100%;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+
+        # Create the white line on the page (visible as a fixed line)
+        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
+
+        # Loop through the entries and display them in the right column
         for i, entry in enumerate(entries):
             event_date = entry[2]
 
@@ -202,33 +209,3 @@ if authenticate():
 
 # Display the timeline
 display_timeline()
-
-# ----------------CSS for Proper Layout--------------------------------------------------------
-st.markdown("""
-    <style>
-        .timeline {
-            position: fixed;
-            width: 10px;
-            background-color: white; /* White vertical line */
-            left: 50%; /* Center the line in the middle column */
-            height: 100%; /* Ensure the line extends till the end of the page */
-        }
-
-        .mark {
-            position: absolute;
-            left: 50%;  /* Center the markings on the line */
-            transform: translateX(-50%);
-            color: white;  /* Color of the date markings */
-        }
-
-        .event {
-            position: absolute;
-            left: 60%;  /* Place events next to the vertical line */
-            width: 100%;
-        }
-
-        .expander {
-            width: 100%;
-        }
-    </style>
-""", unsafe_allow_html=True)

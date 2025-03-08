@@ -72,6 +72,7 @@ def fetch_entries():
     return []
 
 # ----------------MAKING TIMELINE-----------------------------------------------
+
 def display_timeline():
     entries = fetch_entries()
 
@@ -88,59 +89,61 @@ def display_timeline():
         return
 
     # Dynamically adjust the height of the timeline based on the events
-    timeline_height = 1000  # Height of the timeline
-    left_column_width = 150  # Width for the left part (for date markings)
-    right_column_width = 600  # Width for the right part (for expanders)
+    timeline_height = 1000  # Increased height for better display
 
-    # Create a container for the layout using st.columns
-    left_column, right_column = st.columns([left_column_width, right_column_width])
+    # Create a timeline line using CSS (make the timeline white)
+    st.markdown(
+        "<style>"
+        ".timeline {"
+        "    position: relative;"
+        "    width: 10px;"
+        "    background-color: white;"  # White background
+        "    margin-left: 50%;"
+        "    margin-top: 50px;"
+        "    height: {timeline_height}px;"
+        "}"
+        ".event {"
+        "    position: absolute;"
+        "    left: 50%;"
+        "    transform: translateX(-50%);"
+        "    width: 200px;"  # Width of the event expander
+        "    margin-left: -100px;"  # Centering the expander
+        "}"
+        "</style>", unsafe_allow_html=True
+    )
 
-    # Left side: White line and date markings
-    with left_column:
-        # White vertical line
-        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
+    # Create the timeline line in the center
+    st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-        # Create date markings every 100 years
-        for year in range(min_date - (min_date % 100), max_date + 100, 100):
-            # Handling BC and AD dates properly
-            if year < 0:  # BC
-                display_year = f"{abs(year)} BC"
-            else:  # AD
-                display_year = f"{year} AD"
+    # Loop through entries and display them on the vertical timeline
+    for i, entry in enumerate(entries):
+        event_date = entry[2]
 
-            # Calculate the position for each marking on the timeline
-            height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
-            st.markdown(f'<div class="mark" style="top: {height_position}px;">{display_year}</div>', unsafe_allow_html=True)
+        # Normalize event date (both BC and AD)
+        normalized_position = parse_date(event_date)
 
-    # Right side: Event expanders
-    with right_column:
-        for i, entry in enumerate(entries):
-            event_date = entry[2]
+        # If the date could not be parsed, skip this event
+        if normalized_position is None:
+            continue
 
-            # Normalize event date (both BC and AD)
-            normalized_position = parse_date(event_date)
+        # Calculate position on the timeline (scaled for display)
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
-            # If the date could not be parsed, skip this event
-            if normalized_position is None:
-                continue
+        # Create a div for the event marker and show it inside the expander (no button now)
+        st.markdown(
+            f"<div class='event' style='top: {height_position}px;'>"
+            "<div class='expander'>"
+            "<details>"
+            f"<summary>{entry[3]} ({entry[2]})</summary>"
+            f"<p><strong>Scientist:</strong> {entry[1]}</p>"
+            f"<p>{entry[4]}</p>"
+            f"<a href='{entry[5]}' target='_blank'>Supporting Links</a>"
+            f"<p><strong>Tags:</strong> {entry[6]}</p>"
+            "</details>"
+            "</div>"
+            "</div>", unsafe_allow_html=True
+        )
 
-            # Calculate position on the timeline (scaled for display)
-            height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
-
-            # Create the event expander with proper HTML structure using double quotes for string concatenation
-            st.markdown(
-                f"<div class=\"event\" style=\"top: {height_position}px;\">"
-                "<div class=\"expander\">"
-                "<details>"
-                f"<summary>{entry[3]} ({entry[2]})</summary>"
-                f"<p><strong>Scientist:</strong> {entry[1]}</p>"
-                f"<p>{entry[4]}</p>"
-                f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
-                f"<p><strong>Tags:</strong> {entry[6]}</p>"
-                "</details>"
-                "</div>"
-                "</div>", unsafe_allow_html=True
-            )
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

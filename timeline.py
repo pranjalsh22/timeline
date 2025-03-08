@@ -97,9 +97,10 @@ def display_timeline():
 
     # Left side: White line and date markings
     with left_column:
+        # White vertical line
         st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-        # Create date markings every 100 years, including BC dates
+        # Create date markings every 100 years
         for year in range(min_date - (min_date % 100), max_date + 100, 100):
             # Handling BC and AD dates properly
             if year < 0:  # BC

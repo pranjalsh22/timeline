@@ -88,35 +88,78 @@ def display_timeline():
         return
 
     # Dynamically adjust the height of the timeline based on the events
-    timeline_height = 1000  # Increased height for better display
+    timeline_height = 1000  # Height of the timeline
+    left_side_width = 150  # Width for the left part (for date markings)
+    right_side_width = 600  # Width for the right part (for expanders)
 
-    # Create a timeline line using CSS (make the timeline white)
-    st.markdown(
-        "<style>"
-        ".timeline {"
-        "    position: relative;"
-        "    width: 10px;"
-        "    background-color: white;"  # White background
-        "    margin-left: 50%;"
-        "    margin-top: 50px;"
-        "    height: {timeline_height}px;"
-        "    z-index: 10;"  # Ensure it's above other elements
-        "}"
-        ".event {"
-        "    position: absolute;"
-        "    left: 50%;"
-        "    transform: translateX(-50%);"
-        "    width: 200px;"  # Width of the event expander
-        "    margin-left: -100px;"  # Centering the expander
-        "    z-index: 5;"  # Ensure events appear above the timeline
-        "}"
-        "</style>", unsafe_allow_html=True
-    )
+    # Create a container for the layout
+    st.markdown(f"""
+    <style>
+        .container {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            height: {timeline_height}px;
+        }}
+        .left {{
+            width: {left_side_width}px;
+            position: relative;
+            background-color: transparent;
+        }}
+        .right {{
+            width: {right_side_width}px;
+            position: relative;
+        }}
+        .timeline {{
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 10px;
+            background-color: white;
+            height: {timeline_height}px;
+            z-index: 1;
+        }}
+        .event {{
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+        }}
+        .mark {{
+            position: absolute;
+            left: -20px;
+            width: 40px;
+            text-align: right;
+            color: white;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
-    # Create the timeline line in the center
+    # Create the container to hold both sections
+    st.markdown('<div class="container">', unsafe_allow_html=True)
+
+    # Left side: White line and date markings
+    st.markdown('<div class="left">', unsafe_allow_html=True)
     st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-    # Loop through entries and display them on the vertical timeline
+    # Calculate the dates and their positions for the left side (timeline markings)
+    for i, entry in enumerate(entries):
+        event_date = entry[2]
+        normalized_position = parse_date(event_date)
+        if normalized_position is None:
+            continue
+
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
+
+        # Place date markings along the left side
+        st.markdown(f'<div class="mark" style="top: {height_position}px;">{event_date}</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # End left section
+
+    # Right side: Event expanders
+    st.markdown('<div class="right">', unsafe_allow_html=True)
+
+    # Loop through entries and display them on the right side of the timeline
     for i, entry in enumerate(entries):
         event_date = entry[2]
 
@@ -130,20 +173,24 @@ def display_timeline():
         # Calculate position on the timeline (scaled for display)
         height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
-        # Create a div for the event marker and show it inside the expander (no button now)
-        st.markdown(
-            f"<div class='event' style='top: {height_position}px;'>"
-            "<div class='expander'>"
-            "<details>"
-            f"<summary>{entry[3]} ({entry[2]})</summary>"
-            f"<p><strong>Scientist:</strong> {entry[1]}</p>"
-            f"<p>{entry[4]}</p>"
-            f"<a href='{entry[5]}' target='_blank'>Supporting Links</a>"
-            f"<p><strong>Tags:</strong> {entry[6]}</p>"
-            "</details>"
-            "</div>"
-            "</div>", unsafe_allow_html=True
-        )
+        # Create the event expander
+        st.markdown(f"""
+        <div class="event" style="top: {height_position}px;">
+            <div class="expander">
+                <details>
+                    <summary>{entry[3]} ({entry[2]})</summary>
+                    <p><strong>Scientist:</strong> {entry[1]}</p>
+                    <p>{entry[4]}</p>
+                    <a href="{entry[5]}" target="_blank">Supporting Links</a>
+                    <p><strong>Tags:</strong> {entry[6]}</p>
+                </details>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # End right section
+
+    st.markdown('</div>', unsafe_allow_html=True)  # End container
 
 
 # Function to parse the date (handling BC and AD dates)

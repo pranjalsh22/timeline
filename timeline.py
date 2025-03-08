@@ -207,11 +207,11 @@ display_timeline()
 st.markdown("""
     <style>
         .timeline {
-            position: absolute;
+            position: fixed;
             width: 10px;
             background-color: white; /* White vertical line */
             left: 50%; /* Center the line in the middle column */
-            height: 100vh; /* Make sure the line extends until the end of the page */
+            height: 100%; /* Ensure the line extends till the end of the page */
         }
 
         .mark {

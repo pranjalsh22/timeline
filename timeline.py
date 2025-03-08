@@ -2,7 +2,7 @@ import streamlit as st
 import psycopg2
 import datetime
 
-#----------------Access secrets----------------------------------------------------------------------------
+# ----------------Access secrets----------------------------------------------------------------------------
 DB_NAME = st.secrets["db"]["name"]
 DB_USER = st.secrets["db"]["user"]
 DB_PASSWORD = st.secrets["db"]["password"]
@@ -10,7 +10,7 @@ DB_HOST = st.secrets["db"]["host"]
 DB_PORT = st.secrets["db"]["port"]
 PASSCODE = st.secrets["app"]["passcode"]
 
-#----------------Authenticate and connect----------------------------------------------------------------------------
+# ----------------Authenticate and connect----------------------------------------------------------------------------
 def authenticate():
     passcode = st.sidebar.text_input("Enter Passcode", type="password")
     return passcode == PASSCODE
@@ -48,7 +48,7 @@ def create_table():
         conn.commit()
         conn.close()
 
-#---------------------------Data entry and access------------------------------------------------------------
+# ---------------------------Data entry and access------------------------------------------------------------
 def insert_entry(scientist_name, discovery_date, title, description, links, tags):
     conn = get_connection()
     if conn:
@@ -70,10 +70,14 @@ def fetch_entries():
         return data
     return []
 
-#----------------MAKING TIMELINE-----------------------------------------------
+# ----------------MAKING TIMELINE-----------------------------------------------
 
 def display_timeline():
     entries = fetch_entries()
+
+    # Get min and max dates from the database to scale events vertically
+    min_date = min([parse_date(entry[2]) for entry in entries if parse_date(entry[2]) is not None])
+    max_date = max([parse_date(entry[2]) for entry in entries if parse_date(entry[2]) is not None])
 
     # Create a timeline line using CSS
     st.markdown("""
@@ -101,30 +105,15 @@ def display_timeline():
     # Create the timeline line in the center
     st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-    # Get min and max dates from the database to scale events vertically
-    min_date = min([datetime.datetime.strptime(entry[2], "%Y-%m-%d") for entry in entries if 'BC' not in entry[2]])
-    max_date = max([datetime.datetime.strptime(entry[2], "%Y-%m-%d") for entry in entries if 'AD' in entry[2]])
-
-    # Function to normalize BC dates and AD dates
-    def normalize_date(date_str):
-        if 'BC' in date_str:
-            date_obj = datetime.datetime.strptime(date_str, "%Y BC")
-            return -date_obj.year
-        elif 'AD' in date_str:
-            date_obj = datetime.datetime.strptime(date_str, "%Y AD")
-            return date_obj.year
-        else:
-            return 0
-
     # Loop through entries and display them on the vertical timeline
     for i, entry in enumerate(entries):
         event_date = entry[2]
 
         # Normalize event date (both BC and AD)
-        normalized_position = normalize_date(event_date)
+        normalized_position = parse_date(event_date)
 
         # Calculate position on the timeline (scaled for display)
-        height_position = int((normalized_position - min_date.year) / (max_date.year - min_date.year) * 600)  # 600px height for the timeline
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * 600)  # 600px height for the timeline
 
         # Display the event as a button and expanders for details
         event_button = st.button(f"{entry[3]} - {entry[2]}", key=f"button_{i}")
@@ -147,10 +136,27 @@ def display_timeline():
         </div>
         """, unsafe_allow_html=True)
 
+# Function to parse the date (handling BC and AD dates)
+def parse_date(date_str):
+    try:
+        if 'BC' in date_str:
+            # Handle BC dates
+            date_obj = datetime.datetime.strptime(date_str, "%Y BC")
+            return -date_obj.year  # Make BC years negative
+        elif 'AD' in date_str:
+            # Handle AD dates
+            date_obj = datetime.datetime.strptime(date_str, "%Y AD")
+            return date_obj.year
+        else:
+            return None
+    except Exception as e:
+        st.error(f"Error parsing date {date_str}: {e}")
+        return None
+
 # Add some space after the timeline
 st.markdown("<br>", unsafe_allow_html=True)
 
-#---------------------MAIN--------------------------------------------------------
+# ---------------------MAIN--------------------------------------------------------
 st.title("Physics and Mathematics Discoveries Timeline")
 st.sidebar.header("Add New Entry")
 create_table()

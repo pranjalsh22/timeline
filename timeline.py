@@ -1,18 +1,6 @@
 import streamlit as st
 import psycopg2
 import datetime
-#---------------------------BACKGROUND----------------------------------------------------
-st.markdown(
-    """
-    <style>
-        body {
-            background-color: #ADD8E6 !important;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 
 # ----------------Access secrets----------------------------------------------------------------------------
 DB_NAME = st.secrets["db"]["name"]
@@ -99,13 +87,13 @@ def display_timeline():
         st.error("No valid dates found in the entries.")
         return
 
-    # Create a timeline line using CSS
+    # Create a timeline line using CSS (make the timeline white)
     st.markdown("""
     <style>
         .timeline {
             position: relative;
             width: 10px;
-            background-color: black;
+            background-color: white; /* White background */
             margin-left: 50%;
             margin-top: 50px;
             height: 600px;
@@ -118,6 +106,9 @@ def display_timeline():
             border: 1px solid black;
             text-align: center;
             cursor: pointer;
+        }
+        .stApp {
+            background-color: #ADD8E6 !important;  /* Light blue app background */
         }
     </style>
     """, unsafe_allow_html=True)
@@ -139,19 +130,15 @@ def display_timeline():
         # Calculate position on the timeline (scaled for display)
         height_position = int((normalized_position - min_date) / (max_date - min_date) * 600)  # 600px height for the timeline
 
-        # Display the event as a button and expanders for details
-        event_button = st.button(f"{entry[3]} - {entry[2]}", key=f"button_{i}")
-
-        # When button is clicked, show details in an expander
-        if event_button:
-            with st.expander(f"Details of {entry[3]}"):
-                A, B = st.columns([4, 1])
-                with A:
-                    st.info(f"{entry[3]} by {entry[1]} in {entry[2]}")
-                    st.success(f"{entry[4]}")
-                    st.markdown(f"[{entry[5]}]({entry[4]})")
-                with B:
-                    st.success(f"Tags: {entry[6]}")
+        # Display the event inside the expander
+        with st.expander(f"{entry[3]} ({entry[2]})"):
+            A, B = st.columns([4, 1])
+            with A:
+                st.info(f"{entry[3]} by {entry[1]} in {entry[2]}")
+                st.success(f"{entry[4]}")
+                st.markdown(f"[{entry[5]}]({entry[4]})")
+            with B:
+                st.success(f"Tags: {entry[6]}")
 
         # Create the event marker on the timeline (placed vertically)
         st.markdown(f"""

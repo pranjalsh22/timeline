@@ -92,106 +92,54 @@ def display_timeline():
     left_column_width = 150  # Width for the left part (for date markings)
     right_column_width = 600  # Width for the right part (for expanders)
 
-    # Create a container for the layout
-    st.markdown(f"""
-    <style>
-        .container {{
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            height: {timeline_height}px;
-        }}
-        .left {{
-            width: {left_column_width}px;
-            position: relative;
-            background-color: transparent;
-        }}
-        .right {{
-            width: {right_column_width}px;
-            position: relative;
-        }}
-        .timeline {{
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 10px;
-            background-color: white;
-            height: {timeline_height}px;
-            z-index: 1;
-        }}
-        .mark {{
-            position: absolute;
-            left: -20px;
-            width: 40px;
-            text-align: right;
-            color: white;
-        }}
-        .event {{
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-        }}
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Create the container to hold both sections
-    st.markdown('<div class="container">', unsafe_allow_html=True)
+    # Create a container for the layout using st.columns
+    left_column, right_column = st.columns([left_column_width, right_column_width])
 
     # Left side: White line and date markings
-    st.markdown('<div class="left">', unsafe_allow_html=True)
-    st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
+    with left_column:
+        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-    # Calculate the dates and their positions for the left side (timeline markings)
-    for i, entry in enumerate(entries):
-        event_date = entry[2]
-        normalized_position = parse_date(event_date)
-        if normalized_position is None:
-            continue
+        # Calculate the dates and their positions for the left side (timeline markings)
+        for i, entry in enumerate(entries):
+            event_date = entry[2]
+            normalized_position = parse_date(event_date)
+            if normalized_position is None:
+                continue
 
-        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
+            height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
-        # Place date markings along the left side
-        st.markdown(f'<div class="mark" style="top: {height_position}px;">{event_date}</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)  # End left section
+            # Place date markings along the left side
+            st.markdown(f'<div class="mark" style="top: {height_position}px;">{event_date}</div>', unsafe_allow_html=True)
 
     # Right side: Event expanders
-    st.markdown('<div class="right">', unsafe_allow_html=True)
+    with right_column:
+        for i, entry in enumerate(entries):
+            event_date = entry[2]
 
-    # Loop through entries and display them on the right side of the timeline
-    for i, entry in enumerate(entries):
-        event_date = entry[2]
+            # Normalize event date (both BC and AD)
+            normalized_position = parse_date(event_date)
 
-        # Normalize event date (both BC and AD)
-        normalized_position = parse_date(event_date)
+            # If the date could not be parsed, skip this event
+            if normalized_position is None:
+                continue
 
-        # If the date could not be parsed, skip this event
-        if normalized_position is None:
-            continue
+            # Calculate position on the timeline (scaled for display)
+            height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
-        # Calculate position on the timeline (scaled for display)
-        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
-
-        # Create the event expander
-      st.markdown(
-        f"<div class=\"event\" style=\"top: {height_position}px;\">"
-        "<div class=\"expander\">"
-        "<details>"
-        f"<summary>{entry[3]} ({entry[2]})</summary>"
-        f"<p><strong>Scientist:</strong> {entry[1]}</p>"
-        f"<p>{entry[4]}</p>"
-        f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
-        f"<p><strong>Tags:</strong> {entry[6]}</p>"
-        "</details>"
-        "</div>"
-        "</div>", unsafe_allow_html=True
-    )
-
-
-    st.markdown('</div>', unsafe_allow_html=True)  # End right section
-
-    st.markdown('</div>', unsafe_allow_html=True)  # End container
+            # Create the event expander with proper HTML structure using double quotes for string concatenation
+            st.markdown(
+                f"<div class=\"event\" style=\"top: {height_position}px;\">"
+                "<div class=\"expander\">"
+                "<details>"
+                f"<summary>{entry[3]} ({entry[2]})</summary>"
+                f"<p><strong>Scientist:</strong> {entry[1]}</p>"
+                f"<p>{entry[4]}</p>"
+                f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
+                f"<p><strong>Tags:</strong> {entry[6]}</p>"
+                "</details>"
+                "</div>"
+                "</div>", unsafe_allow_html=True
+            )
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

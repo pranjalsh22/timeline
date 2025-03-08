@@ -89,8 +89,8 @@ def display_timeline():
 
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
-    left_side_width = 150  # Width for the left part (for date markings)
-    right_side_width = 600  # Width for the right part (for expanders)
+    left_column_width = 150  # Width for the left part (for date markings)
+    right_column_width = 600  # Width for the right part (for expanders)
 
     # Create a container for the layout
     st.markdown(f"""
@@ -102,12 +102,12 @@ def display_timeline():
             height: {timeline_height}px;
         }}
         .left {{
-            width: {left_side_width}px;
+            width: {left_column_width}px;
             position: relative;
             background-color: transparent;
         }}
         .right {{
-            width: {right_side_width}px;
+            width: {right_column_width}px;
             position: relative;
         }}
         .timeline {{
@@ -119,18 +119,18 @@ def display_timeline():
             height: {timeline_height}px;
             z-index: 1;
         }}
-        .event {{
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-        }}
         .mark {{
             position: absolute;
             left: -20px;
             width: 40px;
             text-align: right;
             color: white;
+        }}
+        .event {{
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
         }}
     </style>
     """, unsafe_allow_html=True)
@@ -174,24 +174,24 @@ def display_timeline():
         height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
         # Create the event expander
-        st.markdown(f"""
-        <div class="event" style="top: {height_position}px;">
-            <div class="expander">
-                <details>
-                    <summary>{entry[3]} ({entry[2]})</summary>
-                    <p><strong>Scientist:</strong> {entry[1]}</p>
-                    <p>{entry[4]}</p>
-                    <a href="{entry[5]}" target="_blank">Supporting Links</a>
-                    <p><strong>Tags:</strong> {entry[6]}</p>
-                </details>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+      st.markdown(
+    f"<div class=\"event\" style=\"top: {height_position}px;\">"
+    "<div class=\"expander\">"
+    "<details>"
+    f"<summary>{entry[3]} ({entry[2]})</summary>"
+    f"<p><strong>Scientist:</strong> {entry[1]}</p>"
+    f"<p>{entry[4]}</p>"
+    f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
+    f"<p><strong>Tags:</strong> {entry[6]}</p>"
+    "</details>"
+    "</div>"
+    "</div>", unsafe_allow_html=True
+)
+
 
     st.markdown('</div>', unsafe_allow_html=True)  # End right section
 
     st.markdown('</div>', unsafe_allow_html=True)  # End container
-
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

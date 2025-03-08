@@ -91,8 +91,8 @@ def display_timeline():
     right_column_width = 600  # Width for the right part (for expanders)
     line_column_width = 50  # Reduced width of the line column
 
-    # Create a container for the layout using st.columns
-    col1, col2, col3 = st.columns([line_column_width, right_column_width, 1])
+    # Create a container for the layout using st.columns with a 1:10 width ratio
+    col1, col2, col3 = st.columns([1, 10, 1])
 
     # ---------------- Left Column (White Line Column) ----------------
     with col1:
@@ -119,7 +119,7 @@ def display_timeline():
         # Marking every 100 years starting from the max date
         for year in range(max_date, min_date - 1, -100):
             height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
-            st.markdown(f'<div style="position: absolute; top: {height_position}px; left: 10%; color: white; font-size: 10px;">{year}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="position: absolute; top: {height_position}px; left: 0%; color: white; font-size: 10px;">{year}</div>', unsafe_allow_html=True)
 
     # ---------------- Right Column (Event Expander Column) ----------------
     with col3:

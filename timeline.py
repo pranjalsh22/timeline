@@ -87,25 +87,35 @@ def display_timeline():
         st.error("No valid dates found in the entries.")
         return
 
-    # Dynamically adjust the height of the timeline based on the events
-    timeline_height = 1000  # Increased height for better display
-
-    # Create a timeline line using CSS (make the timeline white)
-    st.markdown(f"""
+    # Create a timeline line using CSS
+    st.markdown("""
     <style>
-        .timeline {{
+        .timeline {
             position: relative;
             width: 10px;
-            background-color: white; /* White background */
+            background-color: black;
             margin-left: 50%;
-            margin-top: 50px;
-            height: {timeline_height}px;
-        }}
+            margin-top: 20px;
+            height: 100vh; /* Full page height */
+        }
+        .event {
+            position: absolute;
+            width: 200px;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid black;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
     """, unsafe_allow_html=True)
 
     # Create the timeline line in the center
     st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
+
+    # Sort entries from newest to oldest
+    entries = sorted(entries, key=lambda x: parse_date(x[2]), reverse=True)
 
     # Loop through entries and display them on the vertical timeline
     for i, entry in enumerate(entries):
@@ -119,17 +129,40 @@ def display_timeline():
             continue
 
         # Calculate position on the timeline (scaled for display)
-        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)  # timeline_height for scaling
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * 100)  # Scaled for 100% height of the page
 
-        # Create the event marker and show it inside the expander (no button now)
-        with st.expander(f"{entry[3]} ({entry[2]})"):
-            A, B = st.columns([4, 1])
-            with A:
-                st.info(f"{entry[3]} by {entry[1]} in {entry[2]}")
-                st.success(f"{entry[4]}")
-                st.markdown(f"[{entry[5]}]({entry[4]})")
-            with B:
-                st.success(f"Tags: {entry[6]}")
+        # Create the event marker on the timeline (placed vertically)
+        st.markdown(f"""
+        <div class="event" style="top: {height_position}%; left: 50%; transform: translateX(-50%);">
+            <div class="expander" style="cursor: pointer; padding: 5px; font-weight: bold;">
+                {entry[3]} ({entry[2]})
+            </div>
+            <div class="event-details" style="display: none;">
+                <div style="font-size: 14px;">
+                    {entry[4]}
+                </div>
+                <div style="font-size: 12px;">
+                    Tags: {entry[6]}
+                </div>
+                <div>
+                    <a href="{entry[5]}" target="_blank">Learn more</a>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Add interaction for expanders (click to show/hide details)
+        st.markdown(f"""
+        <script>
+            document.querySelectorAll('.expander').forEach((expander) => {{
+                expander.addEventListener('click', () => {{
+                    const details = expander.nextElementSibling;
+                    details.style.display = details.style.display === 'none' ? 'block' : 'none';
+                }});
+            }});
+        </script>
+        """, unsafe_allow_html=True)
+
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

@@ -95,13 +95,9 @@ def display_timeline():
     # Create a container for the layout using st.columns
     left_column, middle_column, right_column = st.columns([left_column_width, middle_column_width, right_column_width])
 
-    # Left side: White line
-    with middle_column:
-        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
-
-    # Left side: Date markings (every 100 years, starting from 2025)
+    # Left side: Date markings (every 100 years, starting from the oldest entry)
     with left_column:
-        for year in range(2025, min_date - 100, -100):  # Marking from 2025 going back
+        for year in range(min_date, max_date + 100, 100):  # Marking from the oldest going forward
             # Handling BC and AD dates properly
             if year < 0:  # BC
                 display_year = f"{abs(year)} BC"
@@ -111,6 +107,10 @@ def display_timeline():
             # Calculate the position for each marking on the timeline
             height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
             st.markdown(f'<div class="mark" style="top: {height_position}px;">{display_year}</div>', unsafe_allow_html=True)
+
+    # Middle side: White line
+    with middle_column:
+        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
     # Right side: Event expanders
     with right_column:

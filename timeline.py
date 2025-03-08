@@ -71,6 +71,7 @@ def fetch_entries():
     return []
 
 # ----------------MAKING TIMELINE-----------------------------------------------
+
 def display_timeline():
     entries = fetch_entries()
 
@@ -86,33 +87,25 @@ def display_timeline():
         st.error("No valid dates found in the entries.")
         return
 
-    # Create the timeline line using CSS
-    st.markdown(
-        "<style>"
-        ".timeline {"
-        "    position: relative;"
-        "    width: 10px;"
-        "    background-color: black;"
-        "    margin-left: 50%;"
-        "    margin-top: 20px;"
-        "    height: 100vh;"  # Full page height
-        "}"
-        ".event {"
-        "    position: absolute;"
-        "    width: 200px;"
-        "    padding: 10px;"
-        "    text-align: center;"
-        "    cursor: pointer;"
-        "    transform: translateX(-50%);"
-        "}"
-        "</style>", unsafe_allow_html=True
-    )
+    # Dynamically adjust the height of the timeline based on the events
+    timeline_height = 1000  # Increased height for better display
+
+    # Create a timeline line using CSS (make the timeline white)
+    st.markdown(f"""
+    <style>
+        .timeline {{
+            position: relative;
+            width: 10px;
+            background-color: white; /* White background */
+            margin-left: 50%;
+            margin-top: 50px;
+            height: {timeline_height}px;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
     # Create the timeline line in the center
     st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
-
-    # Sort entries from newest to oldest
-    entries = sorted(entries, key=lambda x: parse_date(x[2]), reverse=True)
 
     # Loop through entries and display them on the vertical timeline
     for i, entry in enumerate(entries):
@@ -126,45 +119,51 @@ def display_timeline():
             continue
 
         # Calculate position on the timeline (scaled for display)
-        height_position = int((normalized_position - min_date) / (max_date - min_date) * 100)  # Scaled for 100% height of the page
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)  # timeline_height for scaling
 
-        # Create the event marker on the timeline (placed vertically)
-        st.markdown(
-            "<div class='event' style='top: {0}%; left: 50%;'>"
-            "    <div class='expander'>"
-            "        <details>"
-            "            <summary>{1} ({2})</summary>"
-            "            <p><strong>Scientist:</strong> {3}</p>"
-            "            <p><strong>Description:</strong> {4}</p>"
-            "            <p><strong>Tags:</strong> {5}</p>"
-            "            <p><a href='{6}' target='_blank'>Learn more</a></p>"
-            "        </details>"
-            "    </div>"
-            "</div>".format(height_position, entry[3], entry[2], entry[1], entry[4], entry[6], entry[5]), 
-            unsafe_allow_html=True
-        )
+        # Create the event marker and show it inside the expander (no button now)
+        with st.expander(f"{entry[3]} ({entry[2]})"):
+            A, B = st.columns([4, 1])
+            with A:
+                st.info(f"{entry[3]} by {entry[1]} in {entry[2]}")
+                st.success(f"{entry[4]}")
+                st.markdown(f"[{entry[5]}]({entry[4]})")
+            with B:
+                st.success(f"Tags: {entry[6]}")
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:
+        # Strip any leading or trailing spaces from the input
+        date_str = date_str.strip()
+
         # Check if the date contains "BC"
         if 'BC' in date_str:
-            # Handle BC dates
-            date_obj = datetime.datetime.strptime(date_str.replace('BC', '').strip(), "%Y")
-            return -date_obj.year  # Make BC years negative
+            # Handle BC dates by removing 'BC' and converting the year into a negative number
+            date_str = date_str.replace('BC', '').strip()
+            if date_str.isdigit():
+                return -int(date_str)  # Make BC years negative (e.g., 250 BC -> -250)
+            else:
+                st.error(f"Invalid BC year format: {date_str}")
+                return None
         elif 'AD' in date_str:
-            # Handle AD dates
-            date_obj = datetime.datetime.strptime(date_str.replace('AD', '').strip(), "%Y")
-            return date_obj.year
+            # Handle AD dates (convert it normally)
+            date_str = date_str.replace('AD', '').strip()
+            if date_str.isdigit():
+                return int(date_str)  # For AD years (e.g., 1905 AD -> 1905)
+            else:
+                st.error(f"Invalid AD year format: {date_str}")
+                return None
         else:
-            # If no BC or AD, assume the date is in AD
-            # Handle simple years (e.g., 1905, 300)
-            date_obj = datetime.datetime.strptime(date_str.strip(), "%Y")
-            return date_obj.year
+            # Handle simple years (e.g., 1905, 300) as AD years
+            if date_str.isdigit():
+                return int(date_str)  # AD dates are positive numbers (e.g., 1905 -> 1905)
+            else:
+                st.error(f"Invalid year format: {date_str}")
+                return None
     except Exception as e:
-        st.error(f"Error parsing date {date_str}: {e}")
+        st.error(f"Error parsing date '{date_str}': {e}")
         return None
-
 
 # ---------------------MAIN--------------------------------------------------------
 st.title("Physics and Mathematics Discoveries Timeline")

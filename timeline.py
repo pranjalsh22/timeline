@@ -151,17 +151,20 @@ def display_timeline():
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:
+        # Check if the date contains "BC"
         if 'BC' in date_str:
             # Handle BC dates
-            date_obj = datetime.datetime.strptime(date_str, "%Y BC")
+            date_obj = datetime.datetime.strptime(date_str.replace('BC', '').strip(), "%Y")
             return -date_obj.year  # Make BC years negative
         elif 'AD' in date_str:
             # Handle AD dates
-            date_obj = datetime.datetime.strptime(date_str, "%Y AD")
+            date_obj = datetime.datetime.strptime(date_str.replace('AD', '').strip(), "%Y")
             return date_obj.year
         else:
-            st.warning(f"Skipping invalid date format: {date_str}")
-            return None
+            # If no BC or AD, assume the date is in AD
+            # Handle simple years (e.g., 1905, 300)
+            date_obj = datetime.datetime.strptime(date_str.strip(), "%Y")
+            return date_obj.year
     except Exception as e:
         st.error(f"Error parsing date {date_str}: {e}")
         return None
@@ -178,7 +181,7 @@ create_table()
 if authenticate():
     with st.sidebar.form("add_entry_form"):
         scientist_name = st.text_input("Scientist Name")
-        discovery_date = st.text_input("Date of Discovery (e.g., 300 BC, 1905 AD)")
+        discovery_date = st.text_input("Date of Discovery (e.g., 300 BC, 1905 AD, or 1905)")
         title = st.text_input("Title of Discovery")
         description = st.text_area("Description")
         links = st.text_input("Supporting Links (comma-separated)")

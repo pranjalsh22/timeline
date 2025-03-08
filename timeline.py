@@ -96,22 +96,20 @@ def display_timeline():
 
     # ---------------- Left Column (White Line Column) ----------------
     with col1:
-        # Create the white vertical line (fixed on the left)
+        # Draw the white vertical line in the left column
         st.markdown("""
             <style>
                 .timeline {
-                    position: fixed;
-                    left: 0px;  /* Start from the very left of the screen */
-                    top: 0;
-                    height: 100%;  /* Make sure the line spans the entire height of the screen */
-                    width: 5px;  /* Reduced width */
+                    height: 100%;  /* Full height of the column */
+                    width: 5px;  /* Small width for the line */
                     background-color: white;
-                    z-index: -1; /* Ensure it stays behind the header */
+                    position: relative;
+                    z-index: 1; /* Ensure it stays above the background */
                 }
             </style>
         """, unsafe_allow_html=True)
 
-        # Create the white line on the page (visible as a fixed line)
+        # Create the white line in the left column
         st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
     # ---------------- Right Column (Event Expander Column) ----------------

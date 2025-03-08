@@ -76,14 +76,15 @@ def display_timeline():
     for entry in entries:
         # indexes : title(3) by(1) in(2) description(4) link(5) tags(6)
         if st.button(f"{entry[3]}"):
-            A,B = st.columns([4,1])
-            with A:
-                st.info(f"{entry[3]}  by {entry[1]} in {entry[2]}")
-                
-                st.success(f"{entry[4]}")
-                st.markdown({entry[5]})
-            with B:
-                st.success(f"{entry[6]}")
+            with st.expander("details"):
+                A,B = st.columns([4,1])
+                with A:
+                    st.info(f"{entry[3]}  by {entry[1]} in {entry[2]}")
+                    
+                    st.success(f"{entry[4]}")
+                    st.markdown({entry[5]})
+                with B:
+                    st.success(f"{entry[6]}")
             
 timeline_html = """
 <div style="width: 100%; height: 10px; background-color: #000; margin-top: 30px;">

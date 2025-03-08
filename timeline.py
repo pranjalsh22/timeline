@@ -87,18 +87,21 @@ def display_timeline():
         st.error("No valid dates found in the entries.")
         return
 
+    # Dynamically adjust the height of the timeline based on the events
+    timeline_height = 600  # Fixed height for now, can be adjusted dynamically based on events
+
     # Create a timeline line using CSS (make the timeline white)
-    st.markdown("""
+    st.markdown(f"""
     <style>
-        .timeline {
+        .timeline {{
             position: relative;
             width: 10px;
             background-color: white; /* White background */
             margin-left: 50%;
             margin-top: 50px;
-            height: 600px;
-        }
-        .event {
+            height: {timeline_height}px;
+        }}
+        .event {{
             position: absolute;
             width: 150px;
             padding: 5px;
@@ -106,7 +109,7 @@ def display_timeline():
             border: 1px solid black;
             text-align: center;
             cursor: pointer;
-        }
+        }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -125,7 +128,7 @@ def display_timeline():
             continue
 
         # Calculate position on the timeline (scaled for display)
-        height_position = int((normalized_position - min_date) / (max_date - min_date) * 600)  # 600px height for the timeline
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)  # timeline_height for scaling
 
         # Create the event marker and show it inside the expander (no button now)
         with st.expander(f"{entry[3]} ({entry[2]})"):

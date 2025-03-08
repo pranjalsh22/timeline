@@ -89,30 +89,24 @@ def display_timeline():
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
     right_column_width = 600  # Width for the right part (for expanders)
+    line_column_width = 50  # Reduced width of the line column
 
     # Create a container for the layout using st.columns
-    right_column = st.columns([right_column_width])[0]
+    col1, col2, col3 = st.columns([line_column_width, right_column_width, 1])
 
-    # Right side: Event expanders
-    with right_column:
-        # Create the white vertical line in the center of the screen
+    # ---------------- Left Column (White Line Column) ----------------
+    with col1:
+        # Create the white vertical line
         st.markdown("""
             <style>
                 .timeline {
                     position: fixed;
-                    left: 50%;
+                    left: 10%;
                     top: 0;
                     height: 100vh;
-                    width: 10px;
+                    width: 5px;  /* Reduced width */
                     background-color: white;
-                }
-                .event {
-                    position: absolute;
-                    left: 60%;
-                    width: 100%;
-                }
-                .expander {
-                    width: 100%;
+                    z-index: -1; /* Ensure it stays behind the header */
                 }
             </style>
         """, unsafe_allow_html=True)
@@ -120,6 +114,15 @@ def display_timeline():
         # Create the white line on the page (visible as a fixed line)
         st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
+    # ---------------- Middle Column (Timeline Markings) ----------------
+    with col2:
+        # Marking every 100 years starting from the max date
+        for year in range(max_date, min_date - 1, -100):
+            height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
+            st.markdown(f'<div style="position: absolute; top: {height_position}px; left: 10%; color: white; font-size: 10px;">{year}</div>', unsafe_allow_html=True)
+
+    # ---------------- Right Column (Event Expander Column) ----------------
+    with col3:
         # Loop through the entries and display them in the right column
         for i, entry in enumerate(entries):
             event_date = entry[2]
@@ -136,7 +139,7 @@ def display_timeline():
 
             # Create the event expander with proper HTML structure
             st.markdown(
-                f"<div class=\"event\" style=\"top: {height_position}px;\">"
+                f"<div class=\"event\" style=\"position: absolute; top: {height_position}px; left: 0%; width: 100%;\">"
                 "<div class=\"expander\">"
                 "<details>"
                 f"<summary>{entry[3]} ({entry[2]})</summary>"

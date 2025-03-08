@@ -134,9 +134,12 @@ def display_timeline():
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:
+        # Strip any leading or trailing spaces from the input
+        date_str = date_str.strip()
+
         # Check if the date contains "BC"
         if 'BC' in date_str:
-            # Handle BC dates by removing the 'BC' and converting the year into a negative number
+            # Handle BC dates by removing 'BC' and converting the year into a negative number
             date_str = date_str.replace('BC', '').strip()
             if date_str.isdigit():
                 return -int(date_str)  # Make BC years negative (e.g., 250 BC -> -250)

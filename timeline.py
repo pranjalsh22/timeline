@@ -88,7 +88,7 @@ def display_timeline():
         return
 
     # Dynamically adjust the height of the timeline based on the events
-    timeline_height = 600  # Fixed height for now, can be adjusted dynamically based on events
+    timeline_height = 1000  # Increased height for better display
 
     # Create a timeline line using CSS (make the timeline white)
     st.markdown(f"""

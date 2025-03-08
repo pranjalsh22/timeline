@@ -89,14 +89,14 @@ def display_timeline():
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
     right_column_width = 600  # Width for the right part (for expanders)
-    line_column_width = 50  # Reduced width of the line column
+    left_column_width = 50  # Reduced width of the left column for the white line
 
     # Create a container for the layout using st.columns with a 1:10 width ratio
     col1, col2 = st.columns([1, 10])  # 1:10 ratio, left for the line, right for events
 
     # ---------------- Left Column (White Line Column) ----------------
     with col1:
-        # Create the white vertical line
+        # Create the white vertical line (fixed on the left)
         st.markdown("""
             <style>
                 .timeline {
@@ -132,7 +132,7 @@ def display_timeline():
 
             # Create the event expander with proper HTML structure
             st.markdown(
-                f"<div class=\"event\" style=\"position: absolute; top: {height_position}px; left: 0%; width: 100%;\">"
+                f"<div class=\"event\" style=\"position: absolute; top: {height_position}px; left: 5%; width: 90%;\">"
                 "<div class=\"expander\">"
                 "<details>"
                 f"<summary>{entry[3]} ({entry[2]})</summary>"

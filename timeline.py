@@ -107,6 +107,15 @@ def display_timeline():
             text-align: center;
             cursor: pointer;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(-50%);
+        }
+        .expander {
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .event-details {
+            display: none;
+            font-size: 14px;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -134,22 +143,29 @@ def display_timeline():
         # Create the event marker on the timeline (placed vertically)
         st.markdown(f"""
         <div class="event" style="top: {height_position}%; left: 50%; transform: translateX(-50%);">
-            <div class="expander" style="cursor: pointer; padding: 5px; font-weight: bold;">
+            <div class="expander" style="padding: 5px;">
                 {entry[3]} ({entry[2]})
             </div>
-            <div class="event-details" style="display: none;">
-                <div style="font-size: 14px;">
-                    {entry[4]}
-                </div>
-                <div style="font-size: 12px;">
-                    Tags: {entry[6]}
-                </div>
-                <div>
-                    <a href="{entry[5]}" target="_blank">Learn more</a>
-                </div>
+            <div class="event-details">
+                <div>{entry[4]}</div>
+                <div>Tags: {entry[6]}</div>
+                <div><a href="{entry[5]}" target="_blank">Learn more</a></div>
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+        # Add interaction for expanders (click to show/hide details)
+        st.markdown(f"""
+        <script>
+            document.querySelectorAll('.expander').forEach((expander) => {{
+                expander.addEventListener('click', () => {{
+                    const details = expander.nextElementSibling;
+                    details.style.display = details.style.display === 'none' ? 'block' : 'none';
+                }});
+            }});
+        </script>
+        """, unsafe_allow_html=True)
+
 
         # Add interaction for expanders (click to show/hide details)
         st.markdown(f"""

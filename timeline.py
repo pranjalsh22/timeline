@@ -107,9 +107,6 @@ def display_timeline():
             text-align: center;
             cursor: pointer;
         }
-        .stApp {
-            background-color: #ADD8E6 !important;  /* Light blue app background */
-        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -130,7 +127,7 @@ def display_timeline():
         # Calculate position on the timeline (scaled for display)
         height_position = int((normalized_position - min_date) / (max_date - min_date) * 600)  # 600px height for the timeline
 
-        # Display the event inside the expander
+        # Display the event inside the expander (no button now)
         with st.expander(f"{entry[3]} ({entry[2]})"):
             A, B = st.columns([4, 1])
             with A:

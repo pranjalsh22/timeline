@@ -210,8 +210,8 @@ st.markdown("""
             position: absolute;
             width: 10px;
             background-color: white; /* White vertical line */
-            margin-left: 50%; /* Center the line in the middle column */
-            height: 100%; /* Make sure the line extends until the end of the page */
+            left: 50%; /* Center the line in the middle column */
+            height: 100vh; /* Make sure the line extends until the end of the page */
         }
 
         .mark {

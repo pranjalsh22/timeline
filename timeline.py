@@ -71,7 +71,6 @@ def fetch_entries():
     return []
 
 # ----------------MAKING TIMELINE-----------------------------------------------
-
 def display_timeline():
     entries = fetch_entries()
 
@@ -87,38 +86,27 @@ def display_timeline():
         st.error("No valid dates found in the entries.")
         return
 
-    # Create a timeline line using CSS
-    st.markdown("""
-    <style>
-        .timeline {
-            position: relative;
-            width: 10px;
-            background-color: black;
-            margin-left: 50%;
-            margin-top: 20px;
-            height: 100vh; /* Full page height */
-        }
-        .event {
-            position: absolute;
-            width: 200px;
-            padding: 10px;
-            background-color: white;
-            border: 1px solid black;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            transform: translateX(-50%);
-        }
-        .expander {
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .event-details {
-            display: none;
-            font-size: 14px;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    # Create the timeline line using CSS
+    st.markdown(
+        "<style>"
+        ".timeline {"
+        "    position: relative;"
+        "    width: 10px;"
+        "    background-color: black;"
+        "    margin-left: 50%;"
+        "    margin-top: 20px;"
+        "    height: 100vh;"  # Full page height
+        "}"
+        ".event {"
+        "    position: absolute;"
+        "    width: 200px;"
+        "    padding: 10px;"
+        "    text-align: center;"
+        "    cursor: pointer;"
+        "    transform: translateX(-50%);"
+        "}"
+        "</style>", unsafe_allow_html=True
+    )
 
     # Create the timeline line in the center
     st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
@@ -141,77 +129,40 @@ def display_timeline():
         height_position = int((normalized_position - min_date) / (max_date - min_date) * 100)  # Scaled for 100% height of the page
 
         # Create the event marker on the timeline (placed vertically)
-        st.markdown(f"""
-        <div class="event" style="top: {height_position}%; left: 50%; transform: translateX(-50%);">
-            <div class="expander" style="padding: 5px;">
-                {entry[3]} ({entry[2]})
-            </div>
-            <div class="event-details">
-                <div>{entry[4]}</div>
-                <div>Tags: {entry[6]}</div>
-                <div><a href="{entry[5]}" target="_blank">Learn more</a></div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Add interaction for expanders (click to show/hide details)
-        st.markdown(f"""
-        <script>
-            document.querySelectorAll('.expander').forEach((expander) => {{
-                expander.addEventListener('click', () => {{
-                    const details = expander.nextElementSibling;
-                    details.style.display = details.style.display === 'none' ? 'block' : 'none';
-                }});
-            }});
-        </script>
-        """, unsafe_allow_html=True)
-
-
-        # Add interaction for expanders (click to show/hide details)
-        st.markdown(f"""
-        <script>
-            document.querySelectorAll('.expander').forEach((expander) => {{
-                expander.addEventListener('click', () => {{
-                    const details = expander.nextElementSibling;
-                    details.style.display = details.style.display === 'none' ? 'block' : 'none';
-                }});
-            }});
-        </script>
-        """, unsafe_allow_html=True)
-
+        st.markdown(
+            "<div class='event' style='top: {0}%; left: 50%;'>"
+            "    <div class='expander'>"
+            "        <details>"
+            "            <summary>{1} ({2})</summary>"
+            "            <p><strong>Scientist:</strong> {3}</p>"
+            "            <p><strong>Description:</strong> {4}</p>"
+            "            <p><strong>Tags:</strong> {5}</p>"
+            "            <p><a href='{6}' target='_blank'>Learn more</a></p>"
+            "        </details>"
+            "    </div>"
+            "</div>".format(height_position, entry[3], entry[2], entry[1], entry[4], entry[6], entry[5]), 
+            unsafe_allow_html=True
+        )
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:
-        # Strip any leading or trailing spaces from the input
-        date_str = date_str.strip()
-
         # Check if the date contains "BC"
         if 'BC' in date_str:
-            # Handle BC dates by removing 'BC' and converting the year into a negative number
-            date_str = date_str.replace('BC', '').strip()
-            if date_str.isdigit():
-                return -int(date_str)  # Make BC years negative (e.g., 250 BC -> -250)
-            else:
-                st.error(f"Invalid BC year format: {date_str}")
-                return None
+            # Handle BC dates
+            date_obj = datetime.datetime.strptime(date_str.replace('BC', '').strip(), "%Y")
+            return -date_obj.year  # Make BC years negative
         elif 'AD' in date_str:
-            # Handle AD dates (convert it normally)
-            date_str = date_str.replace('AD', '').strip()
-            if date_str.isdigit():
-                return int(date_str)  # For AD years (e.g., 1905 AD -> 1905)
-            else:
-                st.error(f"Invalid AD year format: {date_str}")
-                return None
+            # Handle AD dates
+            date_obj = datetime.datetime.strptime(date_str.replace('AD', '').strip(), "%Y")
+            return date_obj.year
         else:
-            # Handle simple years (e.g., 1905, 300) as AD years
-            if date_str.isdigit():
-                return int(date_str)  # AD dates are positive numbers (e.g., 1905 -> 1905)
-            else:
-                st.error(f"Invalid year format: {date_str}")
-                return None
+            # If no BC or AD, assume the date is in AD
+            # Handle simple years (e.g., 1905, 300)
+            date_obj = datetime.datetime.strptime(date_str.strip(), "%Y")
+            return date_obj.year
     except Exception as e:
-        st.error(f"Error parsing date '{date_str}': {e}")
+        st.error(f"Error parsing date {date_str}: {e}")
         return None
 
 

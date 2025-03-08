@@ -89,7 +89,7 @@ def display_timeline():
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
     left_column_width = 150  # Width for the left part (for date markings)
-    middle_column_width = 100  # Width for the white line
+    middle_column_width = 10  # Width for the white line
     right_column_width = 600  # Width for the right part (for expanders)
 
     # Create a container for the layout using st.columns
@@ -207,11 +207,11 @@ display_timeline()
 st.markdown("""
     <style>
         .timeline {
-            position: relative;
+            position: absolute;
             width: 10px;
             background-color: white; /* White vertical line */
             margin-left: 50%; /* Center the line in the middle column */
-            height: 1000px; /* Height of the timeline */
+            height: 100%; /* Make sure the line extends until the end of the page */
         }
 
         .mark {

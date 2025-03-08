@@ -103,7 +103,7 @@ def display_timeline():
                     position: fixed;
                     left: 10%;
                     top: 0;
-                    height: 100vh;
+                    height: 100%;
                     width: 5px;  /* Reduced width */
                     background-color: white;
                     z-index: -1; /* Ensure it stays behind the header */

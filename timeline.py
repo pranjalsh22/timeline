@@ -152,16 +152,16 @@ def parse_date(date_str):
                 st.error(f"Invalid AD year format: {date_str}")
                 return None
         else:
-            # If no BC or AD, assume the date is in AD
-            # Handle simple years (e.g., 1905, 300)
+            # Handle simple years (e.g., 1905, 300) as AD years
             if date_str.isdigit():
-                return int(date_str)  # AD dates are positive numbers
+                return int(date_str)  # AD dates are positive numbers (e.g., 1905 -> 1905)
             else:
                 st.error(f"Invalid year format: {date_str}")
                 return None
     except Exception as e:
         st.error(f"Error parsing date '{date_str}': {e}")
         return None
+
 
 # ---------------------MAIN--------------------------------------------------------
 st.title("Physics and Mathematics Discoveries Timeline")

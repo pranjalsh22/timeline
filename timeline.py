@@ -2,6 +2,7 @@ import datetime
 import streamlit as st
 import psycopg2
 
+st.sidebar.info("version 1")
 # ----------------Access secrets----------------------------------------------------------------------------
 DB_NAME = st.secrets["db"]["name"]
 DB_USER = st.secrets["db"]["user"]

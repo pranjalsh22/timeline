@@ -103,8 +103,6 @@ def display_timeline():
                     height: 100%;  /* Full height of the column */
                     width: 10px;  /* Small width for the line */
                     background-color: white;
-                    position: relative;
-                    z-index: 1; /* Ensure it stays above the background */
                 }
             </style>
         """, unsafe_allow_html=True)

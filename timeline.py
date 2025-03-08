@@ -92,7 +92,7 @@ def display_timeline():
     line_column_width = 50  # Reduced width of the line column
 
     # Create a container for the layout using st.columns with a 1:10 width ratio
-    col1, col2, col3 = st.columns([1, 10, 1])
+    col1, col2 = st.columns([1, 10])  # 1:10 ratio, left for the line, right for events
 
     # ---------------- Left Column (White Line Column) ----------------
     with col1:
@@ -114,15 +114,8 @@ def display_timeline():
         # Create the white line on the page (visible as a fixed line)
         st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-    # ---------------- Middle Column (Timeline Markings) ----------------
-    with col2:
-        # Marking every 100 years starting from the max date
-        for year in range(max_date, min_date - 1, -100):
-            height_position = int((year - min_date) / (max_date - min_date) * timeline_height)
-            st.markdown(f'<div style="position: absolute; top: {height_position}px; left: 0%; color: white; font-size: 10px;">{year}</div>', unsafe_allow_html=True)
-
     # ---------------- Right Column (Event Expander Column) ----------------
-    with col3:
+    with col2:
         # Loop through the entries and display them in the right column
         for i, entry in enumerate(entries):
             event_date = entry[2]

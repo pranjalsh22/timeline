@@ -140,13 +140,6 @@ def display_timeline():
             with B:
                 st.success(f"Tags: {entry[6]}")
 
-        # Create the event marker on the timeline (placed vertically)
-        st.markdown(f"""
-        <div class="event" style="top: {height_position}px;">
-            {entry[3]}
-        </div>
-        """, unsafe_allow_html=True)
-
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:

@@ -101,9 +101,9 @@ def display_timeline():
             <style>
                 .timeline {
                     position: fixed;
-                    left: 10%;
+                    left: 0px;  /* Start from the very left of the screen */
                     top: 0;
-                    height: 100%;
+                    height: 100%;  /* Make sure the line spans the entire height of the screen */
                     width: 5px;  /* Reduced width */
                     background-color: white;
                     z-index: -1; /* Ensure it stays behind the header */

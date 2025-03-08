@@ -92,18 +92,25 @@ def display_timeline():
     timeline_height = 1000  # Increased height for better display
 
     # Create a timeline line using CSS (make the timeline white)
-    st.markdown(f"""
-    <style>
-        .timeline {{
-            position: relative;
-            width: 10px;
-            background-color: white; /* White background */
-            margin-left: 50%;
-            margin-top: 50px;
-            height: {timeline_height}px;
-        }}
-    </style>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        "<style>"
+        ".timeline {"
+        "    position: relative;"
+        "    width: 10px;"
+        "    background-color: white;"  # White background
+        "    margin-left: 50%;"
+        "    margin-top: 50px;"
+        "    height: {timeline_height}px;"
+        "}"
+        ".event {"
+        "    position: absolute;"
+        "    left: 50%;"
+        "    transform: translateX(-50%);"
+        "    width: 200px;"  # Width of the event expander
+        "    margin-left: -100px;"  # Centering the expander
+        "}"
+        "</style>", unsafe_allow_html=True
+    )
 
     # Create the timeline line in the center
     st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
@@ -120,17 +127,23 @@ def display_timeline():
             continue
 
         # Calculate position on the timeline (scaled for display)
-        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)  # timeline_height for scaling
+        height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
-        # Create the event marker and show it inside the expander (no button now)
-        with st.expander(f"{entry[3]} ({entry[2]})"):
-            A, B = st.columns([4, 1])
-            with A:
-                st.info(f"{entry[3]} by {entry[1]} in {entry[2]}")
-                st.success(f"{entry[4]}")
-                st.markdown(f"[{entry[5]}]({entry[4]})")
-            with B:
-                st.success(f"Tags: {entry[6]}")
+        # Create a div for the event marker and show it inside the expander (no button now)
+        st.markdown(
+            f"<div class='event' style='top: {height_position}px;'>"
+            "<div class='expander'>"
+            "<details>"
+            f"<summary>{entry[3]} ({entry[2]})</summary>"
+            f"<p><strong>Scientist:</strong> {entry[1]}</p>"
+            f"<p>{entry[4]}</p>"
+            f"<a href='{entry[5]}' target='_blank'>Supporting Links</a>"
+            f"<p><strong>Tags:</strong> {entry[6]}</p>"
+            "</details>"
+            "</div>"
+            "</div>", unsafe_allow_html=True
+        )
+
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

@@ -167,7 +167,7 @@ def parse_date(date_str):
         return None
 
 # ---------------------MAIN--------------------------------------------------------
-st.title("Physics and Mathematics Discoveries Timeline")
+st.title("Timeline of Great Thoughts")
 
 # Add some space after the timeline
 st.markdown("<br>", unsafe_allow_html=True)

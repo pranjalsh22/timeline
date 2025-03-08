@@ -96,19 +96,16 @@ def display_timeline():
 
     # ---------------- Left Column (White Line Column) ----------------
     with col1:
-        # Draw the white vertical line in the left column
         st.markdown("""
             <style>
-                .timeline {
-                    height: 100%;  /* Full height of the column */
-                    width: 10px;  /* Small width for the line */
+                .vertical-line {
+                    width: 1px;
+                    height: 100vh;  /* Make the line extend the full height of the viewport */
                     background-color: white;
                 }
             </style>
+            <div class="vertical-line"></div>
         """, unsafe_allow_html=True)
-
-        # Create the white line in the left column
-        st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
     # ---------------- Right Column (Event Expander Column) ----------------
     with col2:

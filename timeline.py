@@ -1,7 +1,7 @@
 import streamlit as st
 import psycopg2
 
-# Access secrets
+#----------------Access secrets----------------------------------------------------------------------------
 DB_NAME = st.secrets["db"]["name"]
 DB_USER = st.secrets["db"]["user"]
 DB_PASSWORD = st.secrets["db"]["password"]
@@ -9,12 +9,11 @@ DB_HOST = st.secrets["db"]["host"]
 DB_PORT = st.secrets["db"]["port"]
 PASSCODE = st.secrets["app"]["passcode"]
 
-# Authenticate user
+#----------------Authenticate and connect----------------------------------------------------------------------------
 def authenticate():
     passcode = st.sidebar.text_input("Enter Passcode", type="password")
     return passcode == PASSCODE
 
-# Connect to the database
 def get_connection():
     try:
         conn = psycopg2.connect(
@@ -48,7 +47,7 @@ def create_table():
         conn.commit()
         conn.close()
 
-# Insert data into the database
+#---------------------------Data entry and access------------------------------------------------------------
 def insert_entry(scientist_name, discovery_date, title, description, links, tags):
     conn = get_connection()
     if conn:
@@ -60,7 +59,6 @@ def insert_entry(scientist_name, discovery_date, title, description, links, tags
         conn.commit()
         conn.close()
 
-# Fetch all entries from the database
 def fetch_entries():
     conn = get_connection()
     if conn:
@@ -71,7 +69,8 @@ def fetch_entries():
         return data
     return []
 
-# Display the timeline
+#----------------MAKING TIMELINE-----------------------------------------------
+
 def display_timeline():
     entries = fetch_entries()
     for entry in entries:
@@ -86,34 +85,36 @@ def display_timeline():
             with B:
                 st.success(f"{entry[6]}")
             
-        
+timeline_html = """
+<div style="width: 100%; height: 10px; background-color: #000; margin-top: 30px;">
+</div>
+"""
+st.markdown(timeline_html, unsafe_allow_html=True)
 
-# Main app function
-def main():
-    st.title("Physics Discoveries Timeline")
-    st.sidebar.header("Add New Entry")
+# Add some space
+st.markdown("<br>", unsafe_allow_html=True)
 
-    # Initialize database
-    create_table()
+#---------------------MAIN--------------------------------------------------------
+st.title("Physics Discoveries Timeline")
+st.sidebar.header("Add New Entry")
+create_table()
 
-    # Show form if authenticated
-    if authenticate():
-        with st.sidebar.form("add_entry_form"):
-            scientist_name = st.text_input("Scientist Name")
-            discovery_date = st.text_input("Date of Discovery (e.g., 300 BC, 1905 AD)")
-            title = st.text_input("Title of Discovery")
-            description = st.text_area("Description")
-            links = st.text_input("Supporting Links (comma-separated)")
-            tags = st.multiselect("Tags", ["Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics"])
-            submit_button = st.form_submit_button("Add Entry")
+# Show form if authenticated
+if authenticate():
+    with st.sidebar.form("add_entry_form"):
+        scientist_name = st.text_input("Scientist Name")
+        discovery_date = st.text_input("Date of Discovery (e.g., 300 BC, 1905 AD)")
+        title = st.text_input("Title of Discovery")
+        description = st.text_area("Description")
+        links = st.text_input("Supporting Links (comma-separated)")
+        tags = st.multiselect("Tags", ["Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics"])
+        submit_button = st.form_submit_button("Add Entry")
 
-        if submit_button:
-            tags_str = ", ".join(tags)
-            insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
-            st.sidebar.success("Entry added successfully!")
+    if submit_button:
+        tags_str = ", ".join(tags)
+        insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
+        st.sidebar.success("Entry added successfully!")
 
-    # Display the timeline
-    display_timeline()
+# Display the timeline
+display_timeline()
 
-if __name__ == "__main__":
-    main()

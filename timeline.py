@@ -100,7 +100,7 @@ def display_timeline():
             <style>
                 .vertical-line {
                     width: 1px;
-                    height: 100vh;  /* Make the line extend the full height of the viewport */
+                    height: 100%;  /* Make the line extend the full height of the viewport */
                     background-color: white;
                 }
             </style>

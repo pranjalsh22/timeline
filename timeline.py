@@ -89,18 +89,19 @@ def display_timeline():
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
     left_column_width = 150  # Width for the left part (for date markings)
+    middle_column_width = 100  # Width for the white line
     right_column_width = 600  # Width for the right part (for expanders)
 
     # Create a container for the layout using st.columns
-    left_column, right_column = st.columns([left_column_width, right_column_width])
+    left_column, middle_column, right_column = st.columns([left_column_width, middle_column_width, right_column_width])
 
-    # Left side: White line and date markings
-    with left_column:
-        # White vertical line
+    # Left side: White line
+    with middle_column:
         st.markdown('<div class="timeline"></div>', unsafe_allow_html=True)
 
-        # Create date markings every 100 years, from min_date to max_date
-        for year in range(min_date - (min_date % 100), max_date + 100, 100):
+    # Left side: Date markings (every 100 years, starting from 2025)
+    with left_column:
+        for year in range(2025, min_date - 100, -100):  # Marking from 2025 going back
             # Handling BC and AD dates properly
             if year < 0:  # BC
                 display_year = f"{abs(year)} BC"
@@ -209,7 +210,7 @@ st.markdown("""
             position: relative;
             width: 10px;
             background-color: white; /* White vertical line */
-            margin-left: 50%; /* Center the line in the left column */
+            margin-left: 50%; /* Center the line in the middle column */
             height: 1000px; /* Height of the timeline */
         }
 

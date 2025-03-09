@@ -342,12 +342,12 @@ if authenticate():
             description = st.text_area("Description", value=selected_entry[4])
             links = st.text_input("Supporting Links", value=selected_entry[5])
             tags = st.multiselect("Tags", ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"], default=selected_entry[6].split(", "))
-            update_button = st.form_submit_button("Update Entry")
+            update_button = st.form_submit_button("Update Entry",key="updated")
 
-            if update_button:
-                tags_str = ", ".join(tags)
-                update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
-                st.sidebar.success("Entry updated successfully!")
+        if update_button:
+            tags_str = ", ".join(tags)
+            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
+            st.sidebar.success("Entry updated successfully!")
 
 # Display the timeline
 display_timeline()

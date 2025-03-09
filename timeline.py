@@ -109,6 +109,9 @@ def display_timeline():
 
     # ---------------- Right Column (Event Expander Column) ----------------
     with col2:
+        # Start with an initial height position
+        height_position = 0
+
         # Loop through the entries and display them in the right column
         for i, entry in enumerate(entries):
             event_date = entry[2]
@@ -125,7 +128,7 @@ def display_timeline():
 
             # Create the event expander with proper HTML structure
             st.markdown(
-                f"<div class=\"event\" style=\"position: absolute; top: {height_position}px; left: 5%; width: 90%;\">"
+                f"<div class=\"event\" style=\"position: relative; top: {height_position}px; left: 5%; width: 90%;\">"
                 "<div class=\"expander\">"
                 "<details>"
                 f"<summary>{entry[3]} ({entry[2]})</summary>"
@@ -137,6 +140,9 @@ def display_timeline():
                 "</div>"
                 "</div>", unsafe_allow_html=True
             )
+
+            # Update the height position for the next expander, adjusting the value based on the average height of the content
+            height_position += 200  # Adjust this value based on your content size
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

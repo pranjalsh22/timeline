@@ -341,7 +341,7 @@ if authenticate():
             title = st.text_input("Title of Discovery", value=selected_entry[3])
             description = st.text_area("Description", value=selected_entry[4])
             links = st.text_input("Supporting Links", value=selected_entry[5])
-            tags = st.multiselect("Tags", ["biology", "philosophy", "mathematics", "physics", "optics", "quantum", "astro", "classical mechanics", "thermodynamics"], default=selected_entry[6].split(", "))
+            tags = st.multiselect("Tags", ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"], default=selected_entry[6].split(", "))
             update_button = st.form_submit_button("Update Entry")
 
         if update_button:

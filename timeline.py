@@ -140,6 +140,73 @@ def display_timeline():
     # Calculate the total time span
     total_time_span = max_date - min_date
 
+    # Add custom CSS for a modern tech look
+    st.markdown("""
+        <style>
+            /* Modern font */
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+            html, body, .stApp, .stButton>button, .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {
+                font-family: 'Roboto', sans-serif;
+            }
+
+            /* Dark theme with neon accents */
+            .stApp {
+                background-color: #0e1117;
+                color: #ffffff;
+            }
+            .stSidebar {
+                background-color: #1e1e1e;
+            }
+            .stButton>button {
+                background-color: #00bcd4;
+                color: #ffffff;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                font-weight: 500;
+            }
+            .stButton>button:hover {
+                background-color: #0097a7;
+            }
+            .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                border: 1px solid #00bcd4;
+                border-radius: 5px;
+            }
+
+            /* Card styling for events */
+            .event-card {
+                background-color: #1e1e1e;
+                border: 1px solid #00bcd4;
+                border-radius: 10px;
+                padding: 20px;
+                margin: 10px 0;
+                box-shadow: 0 4px 8px rgba(0, 188, 212, 0.2);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .event-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 188, 212, 0.3);
+            }
+            .event-card h3 {
+                color: #00bcd4;
+                margin-bottom: 10px;
+            }
+            .event-card p {
+                color: #ffffff;
+                margin: 5px 0;
+            }
+            .event-card a {
+                color: #00bcd4;
+                text-decoration: none;
+            }
+            .event-card a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
     # Loop through the entries and display them on the timeline
     for entry in entries:
         event_date = entry[2]
@@ -155,12 +222,16 @@ def display_timeline():
         # Add spacing based on the position ratio
         st.markdown(f'<div style="margin-top: {position_ratio * 100}px;"></div>', unsafe_allow_html=True)
 
-        # Display the event as an expander
-        with st.expander(f"{entry[3]} ({entry[2]})"):
-            st.markdown(f"**Scientist:** {entry[1]}")
-            st.markdown(f"{entry[4]}")
-            st.markdown(f"[Supporting Links]({entry[5]})")
-            st.markdown(f"**Tags:** {entry[6]}")
+        # Display the event as a card
+        st.markdown("""
+            <div class="event-card">
+                <h3>{entry[3]} ({entry[2]})</h3>
+                <p><strong>Scientist:</strong> {entry[1]}</p>
+                <p>{entry[4]}</p>
+                <a href="{entry[5]}" target="_blank">Supporting Links</a>
+                <p><strong>Tags:</strong> {entry[6]}</p>
+            </div>
+        """, unsafe_allow_html=True)
 
 # ---------------------MAIN--------------------------------------------------------
 st.title("Timeline of Great Thoughts")

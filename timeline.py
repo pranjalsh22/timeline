@@ -140,7 +140,7 @@ def display_timeline():
         valid_entries.sort(key=lambda x: x[0], reverse=True)
 
     # Add tag filtering with checkboxes
-    all_tags = ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"], default=selected_entry[6].split(", "))
+    all_tags = ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"]
     st.sidebar.subheader("Filter by Tags")
     selected_tags = []
     with st.sidebar.form("tag_filter_form"):

@@ -144,9 +144,27 @@ def display_timeline():
     st.markdown("""
         <style>
             /* Modern font */
-            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&display=swap');
             html, body, .stApp, .stButton>button, .stTextInput>div>div>input, .stTextArea>div>div>textarea, .stSelectbox>div>div>div {
-                font-family: 'Roboto', sans-serif;
+                font-family: 'Montserrat', sans-serif;
+            }
+
+            /* Glowing blue title */
+            .glowing-title {
+                font-size: 3rem;
+                font-weight: 700;
+                color: #00bcd4;
+                text-align: center;
+                text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4, 0 0 30px #00bcd4, 0 0 40px #00bcd4;
+                animation: glow 1.5s ease-in-out infinite alternate;
+            }
+            @keyframes glow {
+                from {
+                    text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4, 0 0 30px #00bcd4, 0 0 40px #00bcd4;
+                }
+                to {
+                    text-shadow: 0 0 20px #00bcd4, 0 0 30px #00bcd4, 0 0 40px #00bcd4, 0 0 50px #00bcd4;
+                }
             }
 
             /* Dark theme with neon accents */
@@ -173,6 +191,23 @@ def display_timeline():
                 color: #ffffff;
                 border: 1px solid #00bcd4;
                 border-radius: 5px;
+            }
+
+            /* Blue highlight for expander */
+            .stExpander {
+                border: 2px solid #00bcd4 !important;
+                border-radius: 10px !important;
+                margin: 10px 0 !important;
+            }
+            .stExpander .stExpanderHeader {
+                background-color: #1e1e1e !important;
+                color: #00bcd4 !important;
+                font-weight: 500 !important;
+                padding: 10px 20px !important;
+            }
+            .stExpander .stExpanderContent {
+                background-color: #1e1e1e !important;
+                padding: 20px !important;
             }
 
             /* Card styling for events */
@@ -207,6 +242,9 @@ def display_timeline():
         </style>
     """, unsafe_allow_html=True)
 
+    # Display the glowing title
+    st.markdown('<h1 class="glowing-title">Timeline of Great Thoughts</h1>', unsafe_allow_html=True)
+
     # Loop through the entries and display them on the timeline
     for entry in entries:
         event_date = entry[2]
@@ -223,14 +261,24 @@ def display_timeline():
         st.markdown(f'<div style="margin-top: {position_ratio * 100}px;"></div>', unsafe_allow_html=True)
 
         # Display the event as an expander
-        with st.expander(f" {entry[3]} ({entry[2]})"):
-            st.markdown(f"<h3>{entry[3]} ({entry[2]})</h3>", unsafe_allow_html=True)
-            st.markdown(f" <p><strong>Scientist:</strong> {entry[1]}</p>", unsafe_allow_html=True)
-            st.markdown(f"<p>{entry[4]}</p>", unsafe_allow_html=True)
-            st.markdown(f' <a href="{entry[5]}" target="_blank">Supporting Links</a>', unsafe_allow_html=True)
-            st.markdown(f'<p><strong>Tags:</strong> {entry[6]}</p>', unsafe_allow_html=True)
-            st.markdown(f"</div>", unsafe_allow_html=True)
-            
+        with st.expander(f"{entry[3]} ({entry[2]})"):
+            event_html = """
+                <div class="event-card">
+                    <h3>{title} ({date})</h3>
+                    <p><strong>Scientist:</strong> {scientist}</p>
+                    <p>{description}</p>
+                    <a href="{links}" target="_blank">Supporting Links</a>
+                    <p><strong>Tags:</strong> {tags}</p>
+                </div>
+            """.format(
+                title=entry[3],
+                date=entry[2],
+                scientist=entry[1],
+                description=entry[4],
+                links=entry[5],
+                tags=entry[6]
+            )
+            st.markdown(event_html, unsafe_allow_html=True)
 
 # ---------------------MAIN--------------------------------------------------------
 st.title("Timeline of Great Thoughts")

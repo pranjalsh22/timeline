@@ -326,27 +326,37 @@ if authenticate():
         insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
         st.sidebar.success("Entry added successfully!")
 
-    # Edit existing entries
-    st.sidebar.subheader("Edit Existing Entry")
-    entries = fetch_entries()
-    entry_options = {f"{entry[3]} ({entry[2]})": entry for entry in entries}
-    selected_entry_key = st.sidebar.selectbox("Select Entry to Edit", list(entry_options.keys()))
-    
-    if selected_entry_key:
-        selected_entry = entry_options[selected_entry_key]
-        with st.sidebar.form("edit_entry_form"):
-            st.subheader("Edit Entry")
-            scientist_name = st.text_input("Scientist Name", value=selected_entry[1])
-            discovery_date = st.text_input("Date of Discovery", value=selected_entry[2])
-            title = st.text_input("Title of Discovery", value=selected_entry[3])
-            description = st.text_area("Description", value=selected_entry[4])
-            links = st.text_input("Supporting Links", value=selected_entry[5])
-            tags = st.multiselect("Tags", ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"], default=selected_entry[6].split(", "))
-            update_button = st.form_submit_button("Update Entry")  # Removed the `key` parameter
-    
-        if update_button:
-            tags_str = ", ".join(tags)
-            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
-            st.sidebar.success("Entry updated successfully!")
+# Edit existing entries
+st.sidebar.subheader("Edit Existing Entry")
+entries = fetch_entries()
+entry_options = {f"{entry[3]} ({entry[2]})": entry for entry in entries}
+selected_entry_key = st.sidebar.selectbox("Select Entry to Edit", list(entry_options.keys()))
+
+if selected_entry_key:
+    selected_entry = entry_options[selected_entry_key]
+    with st.sidebar.form("edit_entry_form"):
+        st.subheader("Edit Entry")
+        scientist_name = st.text_input("Scientist Name", value=selected_entry[1])
+        discovery_date = st.text_input("Date of Discovery", value=selected_entry[2])
+        title = st.text_input("Title of Discovery", value=selected_entry[3])
+        description = st.text_area("Description", value=selected_entry[4])
+        links = st.text_input("Supporting Links", value=selected_entry[5])
+
+        # Handle empty or None tags
+        tags_str = selected_entry[6] if selected_entry[6] else ""
+        tags_list = tags_str.split(", ") if tags_str else []
+
+        tags = st.multiselect(
+            "Tags",
+            options=["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics", "Statistical", "Electronics", "Material Science", "Computer Science"],
+            default=tags_list  # Use the processed tags list
+        )
+
+        update_button = st.form_submit_button("Update Entry")  # Add submit button
+
+    if update_button:
+        tags_str = ", ".join(tags)
+        update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
+        st.sidebar.success("Entry updated successfully!")
 # Display the timeline
 display_timeline()

@@ -70,65 +70,6 @@ def fetch_entries():
         return data
     return []
 
-# ----------------MAKING TIMELINE-----------------------------------------------
-def display_timeline():
-    entries = fetch_entries()
-
-    # Parse all dates and filter out None values
-    valid_dates = [parse_date(entry[2]) for entry in entries]
-    valid_dates = [date for date in valid_dates if date is not None]
-
-    # Ensure there are valid dates to compute min and max
-    if valid_dates:
-        min_date = min(valid_dates)
-        max_date = max(valid_dates)
-    else:
-        st.error("No valid dates found in the entries.")
-        return
-
-    # Dynamically adjust the height of the timeline based on the events
-    timeline_height = 1000  # Height of the timeline
-    right_column_width = 600  # Width for the right part (for expanders)
-    left_column_width = 50  # Reduced width of the left column for the white line
-
-    # Create a container for the layout using st.columns with a 1:10 width ratio
-    col1, col2 = st.columns([1, 10])  # 1:10 ratio, left for the line, right for events
-
-    # ---------------- Left Column (White Line Column) ----------------
-    with col1:
-        st.markdown("""
-            <style>
-                .vertical-line {
-                    width: 1px;
-                    height: 300vh;  /* Make the line extend the full height of the viewport */
-                    background-color: blue;
-                }
-            </style>
-            <div class="vertical-line"></div>
-        """, unsafe_allow_html=True)
-
-    # ---------------- Right Column (Event Expander Column) ----------------
-    with col2:
-        # Loop through the entries and display them in the right column
-        for i, entry in enumerate(entries):
-            event_date = entry[2]
-
-            # Normalize event date (both BC and AD)
-            normalized_position = parse_date(event_date)
-
-            # If the date could not be parsed, skip this event
-            if normalized_position is None:
-                continue
-
-            # Calculate position on the timeline (scaled for display)
-            height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
-
-            # Use Streamlit's native expander component
-            with st.expander(f"{entry[3]} ({entry[2]})"):
-                st.markdown(f"**Scientist:** {entry[1]}")
-                st.markdown(f"{entry[4]}")
-                st.markdown(f"[Supporting Links]({entry[5]})")
-                st.markdown(f"**Tags:** {entry[6]}")
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:
@@ -163,8 +104,119 @@ def parse_date(date_str):
         st.error(f"Error parsing date '{date_str}': {e}")
         return None
 
+# ----------------MAKING TIMELINE-----------------------------------------------
+def display_timeline():
+    entries = fetch_entries()
+
+    # Parse all dates and filter out None values
+    valid_dates = [parse_date(entry[2]) for entry in entries]
+    valid_dates = [date for date in valid_dates if date is not None]
+
+    # Ensure there are valid dates to compute min and max
+    if valid_dates:
+        min_date = min(valid_dates)
+        max_date = max(valid_dates)
+    else:
+        st.error("No valid dates found in the entries.")
+        return
+
+    # Calculate the total time span
+    total_time_span = max_date - min_date
+
+    # Add custom CSS for the timeline
+    st.markdown("""
+        <style>
+            .timeline {
+                position: relative;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            .timeline::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background-color: blue;
+                left: 50%;
+                margin-left: -2px;
+            }
+            .event {
+                padding: 10px 40px;
+                position: relative;
+                background-color: inherit;
+                width: 50%;
+            }
+            .event.left {
+                left: 0;
+            }
+            .event.right {
+                left: 50%;
+            }
+            .event::after {
+                content: '';
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                right: -10px;
+                background-color: blue;
+                border: 4px solid white;
+                top: 15px;
+                border-radius: 50%;
+                z-index: 1;
+            }
+            .event.right::after {
+                left: -10px;
+            }
+            .event-content {
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-radius: 6px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Create the timeline container
+    st.markdown('<div class="timeline">', unsafe_allow_html=True)
+
+    # Loop through the entries and display them on the timeline
+    for i, entry in enumerate(entries):
+        event_date = entry[2]
+        normalized_position = parse_date(event_date)
+
+        # If the date could not be parsed, skip this event
+        if normalized_position is None:
+            continue
+
+        # Calculate the position of the event on the timeline
+        position_ratio = (normalized_position - min_date) / total_time_span
+        position_percentage = position_ratio * 100
+
+        # Alternate events between left and right for better visual appeal
+        if i % 2 == 0:
+            event_class = "event left"
+        else:
+            event_class = "event right"
+
+        # Display the event
+        st.markdown("""
+            <div class="{event_class}" style="top: {position_percentage}%;">
+                <div class="event-content">
+                    <h3>{entry[3]} ({entry[2]})</h3>
+                    <p><strong>Scientist:</strong> {entry[1]}</p>
+                    <p>{entry[4]}</p>
+                    <a href="{entry[5]}" target="_blank">Supporting Links</a>
+                    <p><strong>Tags:</strong> {entry[6]}</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Close the timeline container
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # ---------------------MAIN--------------------------------------------------------
-st.title("Timeline of great thoughts")
+st.title("Timeline of Great Thoughts")
 
 # Add some space after the timeline
 st.markdown("<br>", unsafe_allow_html=True)

@@ -1,141 +1,24 @@
-import datetime
-import streamlit as st
-import psycopg2
-
-# ----------------Access secrets----------------------------------------------------------------------------
-DB_NAME = st.secrets["db"]["name"]
-DB_USER = st.secrets["db"]["user"]
-DB_PASSWORD = st.secrets["db"]["password"]
-DB_HOST = st.secrets["db"]["host"]
-DB_PORT = st.secrets["db"]["port"]
-PASSCODE = st.secrets["app"]["passcode"]
-
-# ----------------Authenticate and connect----------------------------------------------------------------------------
-def authenticate():
-    passcode = st.sidebar.text_input("Enter Passcode", type="password")
-    return passcode == PASSCODE
-
-def get_connection():
-    try:
-        conn = psycopg2.connect(
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT
-        )
-        return conn
-    except Exception as e:
-        st.error(f"Database connection failed: {e}")
-        return None
-
-# Create table if it doesn't exist
-def create_table():
-    conn = get_connection()
-    if conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-        CREATE TABLE IF NOT EXISTS discoveries (
-            id SERIAL PRIMARY KEY,
-            scientist_name TEXT,
-            discovery_date TEXT,
-            title TEXT,
-            description TEXT,
-            links TEXT,
-            tags TEXT
-        )
-        """)
-        conn.commit()
-        conn.close()
-
-# ---------------------------Data entry and access------------------------------------------------------------
-def insert_entry(scientist_name, discovery_date, title, description, links, tags):
-    conn = get_connection()
-    if conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-        INSERT INTO discoveries (scientist_name, discovery_date, title, description, links, tags)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """, (scientist_name, discovery_date, title, description, links, tags))
-        conn.commit()
-        conn.close()
-
-def fetch_entries():
-    conn = get_connection()
-    if conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM discoveries")
-        data = cursor.fetchall()
-        conn.close()
-        return data
-    return []
-
-def update_entry(entry_id, scientist_name, discovery_date, title, description, links, tags):
-    conn = get_connection()
-    if conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-        UPDATE discoveries
-        SET scientist_name = %s,
-            discovery_date = %s,
-            title = %s,
-            description = %s,
-            links = %s,
-            tags = %s
-        WHERE id = %s
-        """, (scientist_name, discovery_date, title, description, links, tags, entry_id))
-        conn.commit()
-        conn.close()
-
-# Function to parse the date (handling BC and AD dates)
-def parse_date(date_str):
-    try:
-        # Strip any leading or trailing spaces from the input
-        date_str = date_str.strip()
-
-        # Check if the date contains "BC"
-        if 'BC' in date_str:
-            # Handle BC dates by removing 'BC' and converting the year into a negative number
-            date_str = date_str.replace('BC', '').strip()
-            if date_str.isdigit():
-                return -int(date_str)  # Make BC years negative (e.g., 250 BC -> -250)
-            else:
-                st.error(f"Invalid BC year format: {date_str}")
-                return None
-        elif 'AD' in date_str:
-            # Handle AD dates (convert it normally)
-            date_str = date_str.replace('AD', '').strip()
-            if date_str.isdigit():
-                return int(date_str)  # For AD years (e.g., 1905 AD -> 1905)
-            else:
-                st.error(f"Invalid AD year format: {date_str}")
-                return None
-        else:
-            # Handle simple years (e.g., 1905, 300) as AD years
-            if date_str.isdigit():
-                return int(date_str)  # AD dates are positive numbers (e.g., 1905 -> 1905)
-            else:
-                st.error(f"Invalid year format: {date_str}")
-                return None
-    except Exception as e:
-        st.error(f"Error parsing date '{date_str}': {e}")
-        return None
-
-# ----------------MAKING TIMELINE-----------------------------------------------
 def display_timeline():
     entries = fetch_entries()
 
     # Parse all dates and filter out None values
-    valid_dates = [parse_date(entry[2]) for entry in entries]
-    valid_dates = [date for date in valid_dates if date is not None]
+    valid_entries = []
+    for entry in entries:
+        parsed_date = parse_date(entry[2])
+        if parsed_date is not None:
+            valid_entries.append((parsed_date, entry))
+
+    # Sort entries by parsed date
+    valid_entries.sort(key=lambda x: x[0])
 
     # Ensure there are valid dates to compute min and max
-    if valid_dates:
-        min_date = min(valid_dates)
-        max_date = max(valid_dates)
-    else:
+    if not valid_entries:
         st.error("No valid dates found in the entries.")
         return
+
+    # Extract min and max dates from sorted entries
+    min_date = valid_entries[0][0]
+    max_date = valid_entries[-1][0]
 
     # Calculate the total time span
     total_time_span = max_date - min_date
@@ -245,17 +128,10 @@ def display_timeline():
     # Display the glowing title
     st.markdown('<h1 class="glowing-title">Timeline of Great Thoughts</h1>', unsafe_allow_html=True)
 
-    # Loop through the entries and display them on the timeline
-    for entry in entries:
-        event_date = entry[2]
-        normalized_position = parse_date(event_date)
-
-        # If the date could not be parsed, skip this event
-        if normalized_position is None:
-            continue
-
+    # Loop through the sorted entries and display them on the timeline
+    for parsed_date, entry in valid_entries:
         # Calculate the position of the event on the timeline
-        position_ratio = (normalized_position - min_date) / total_time_span
+        position_ratio = (parsed_date - min_date) / total_time_span
 
         # Add spacing based on the position ratio
         st.markdown(f'<div style="margin-top: {position_ratio * 100}px;"></div>', unsafe_allow_html=True)

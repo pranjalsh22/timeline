@@ -140,30 +140,33 @@ def display_timeline():
     # Calculate the total time span
     total_time_span = max_date - min_date
 
-    # Add custom CSS for the background image
-    st.markdown("""
+    # Base64-encoded blue line image
+    blue_line_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg=="  # Replace with your Base64 string
+
+    # Add custom CSS for the vertical line
+    st.markdown(f"""
         <style>
-            .timeline-container {
+            .timeline-container {{
                 position: relative;
                 padding-left: 50px;
-            }
-            .timeline-line {
+            }}
+            .timeline-line {{
                 position: absolute;
                 left: 50%;
                 top: 0;
                 bottom: 0;
                 width: 4px;
-                background-image: url('blue_line.png'); /* Use local image */
+                background-image: url('data:image/png;base64,{blue_line_base64}');
                 background-repeat: repeat-y;
                 background-position: center;
                 z-index: -1; /* Ensure the line is behind the expanders */
-            }
-            .event {
+            }}
+            .event {{
                 position: relative;
                 margin-bottom: 20px;
                 padding-left: 40px;
-            }
-            .event::before {
+            }}
+            .event::before {{
                 content: '';
                 position: absolute;
                 left: calc(50% - 6px); /* Center the circle on the line */
@@ -173,7 +176,7 @@ def display_timeline():
                 background-color: blue;
                 border-radius: 50%;
                 z-index: 1;
-            }
+            }}
         </style>
     """, unsafe_allow_html=True)
 

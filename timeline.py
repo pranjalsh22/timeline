@@ -123,21 +123,12 @@ def display_timeline():
             # Calculate position on the timeline (scaled for display)
             height_position = int((normalized_position - min_date) / (max_date - min_date) * timeline_height)
 
-            # Create the event expander with proper HTML structure
-            st.markdown(
-                f"<div class=\"event\" style=\"position: absolute; top: {height_position}px; left: 5%; width: 90%;\">"
-                "<div class=\"expander\">"
-                "<details>"
-                f"<summary>{entry[3]} ({entry[2]})</summary>"
-                f"<p><strong>Scientist:</strong> {entry[1]}</p>"
-                f"<p>{entry[4]}</p>"
-                f"<a href=\"{entry[5]}\" target=\"_blank\">Supporting Links</a>"
-                f"<p><strong>Tags:</strong> {entry[6]}</p>"
-                "</details>"
-                "</div>"
-                "</div>", unsafe_allow_html=True
-            )
-
+            # Use Streamlit's native expander component
+            with st.expander(f"{entry[3]} ({entry[2]})"):
+                st.markdown(f"**Scientist:** {entry[1]}")
+                st.markdown(f"{entry[4]}")
+                st.markdown(f"[Supporting Links]({entry[5]})")
+                st.markdown(f"**Tags:** {entry[6]}")
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:

@@ -281,7 +281,6 @@ def display_timeline():
             st.markdown(event_html, unsafe_allow_html=True)
 
 # ---------------------MAIN--------------------------------------------------------
-st.title("Timeline of Great Thoughts")
 
 # Add some space after the timeline
 st.markdown("<br>", unsafe_allow_html=True)

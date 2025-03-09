@@ -140,7 +140,7 @@ def display_timeline():
         valid_entries.sort(key=lambda x: x[0], reverse=True)
 
     # Add tag filtering with checkboxes
-    all_tags = ["biology", "philosophy", "mathematics", "physics", "optics", "quantum", "astro", "classical mechanics", "thermodynamics"]
+    all_tags = ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"], default=selected_entry[6].split(", "))
     st.sidebar.subheader("Filter by Tags")
     selected_tags = []
     with st.sidebar.form("tag_filter_form"):
@@ -318,7 +318,7 @@ if authenticate():
         title = st.text_input("Title of Discovery")
         description = st.text_area("Description")
         links = st.text_input("Supporting Links (comma-separated)")
-        tags = st.multiselect("Tags", ["biology", "philosophy", "mathematics", "physics", "optics", "quantum", "astro", "classical mechanics", "thermodynamics"])
+        tags = st.multiselect("Tags", ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"], default=selected_entry[6].split(", "))
         submit_button = st.form_submit_button("Add Entry")
 
     if submit_button:

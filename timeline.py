@@ -139,12 +139,15 @@ def display_timeline():
     else:
         valid_entries.sort(key=lambda x: x[0], reverse=True)
 
-    # Add tag filtering
-    all_tags = set()
-    for _, entry in valid_entries:
-        tags = entry[6].split(", ")
-        all_tags.update(tags)
-    selected_tags = st.sidebar.multiselect("Filter by Tags", list(all_tags), default=list(all_tags))
+    # Add tag filtering with checkboxes
+    all_tags = ["biology", "philosophy", "mathematics", "physics", "optics", "quantum", "astro", "classical mechanics", "thermodynamics"]
+    st.sidebar.subheader("Filter by Tags")
+    selected_tags = []
+    with st.sidebar.form("tag_filter_form"):
+        for tag in all_tags:
+            if st.checkbox(tag, value=True, key=tag):
+                selected_tags.append(tag)
+        filter_button = st.form_submit_button("Apply Filter")
 
     # Filter entries based on selected tags
     filtered_entries = []
@@ -315,11 +318,12 @@ if authenticate():
         title = st.text_input("Title of Discovery")
         description = st.text_area("Description")
         links = st.text_input("Supporting Links (comma-separated)")
-        tags = st.text_input("Tags (comma-separated)", value="Optics, Quantum, Astro, Classical Mechanics, Thermodynamics")
+        tags = st.multiselect("Tags", ["biology", "philosophy", "mathematics", "physics", "optics", "quantum", "astro", "classical mechanics", "thermodynamics"])
         submit_button = st.form_submit_button("Add Entry")
 
     if submit_button:
-        insert_entry(scientist_name, discovery_date, title, description, links, tags)
+        tags_str = ", ".join(tags)
+        insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
         st.sidebar.success("Entry added successfully!")
 
     # Edit existing entries
@@ -337,11 +341,12 @@ if authenticate():
             title = st.text_input("Title of Discovery", value=selected_entry[3])
             description = st.text_area("Description", value=selected_entry[4])
             links = st.text_input("Supporting Links", value=selected_entry[5])
-            tags = st.text_input("Tags", value=selected_entry[6])
+            tags = st.multiselect("Tags", ["biology", "philosophy", "mathematics", "physics", "optics", "quantum", "astro", "classical mechanics", "thermodynamics"], default=selected_entry[6].split(", "))
             update_button = st.form_submit_button("Update Entry")
 
         if update_button:
-            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags)
+            tags_str = ", ".join(tags)
+            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
             st.sidebar.success("Entry updated successfully!")
 
 # Display the timeline

@@ -123,65 +123,46 @@ def display_timeline():
     # Calculate the total time span
     total_time_span = max_date - min_date
 
-    # Add custom CSS for the timeline
+    # Add custom CSS for the vertical line
     st.markdown("""
         <style>
-            .timeline {
+            .timeline-container {
                 position: relative;
-                max-width: 800px;
-                margin: 0 auto;
+                margin-left: 50px;
             }
-            .timeline::before {
-                content: '';
+            .timeline-line {
                 position: absolute;
+                left: 20px;
                 top: 0;
                 bottom: 0;
                 width: 4px;
                 background-color: blue;
-                left: 50%;
-                margin-left: -2px;
             }
             .event {
-                padding: 10px 40px;
                 position: relative;
-                background-color: inherit;
-                width: 50%;
+                margin-bottom: 20px;
+                padding-left: 40px;
             }
-            .event.left {
-                left: 0;
-            }
-            .event.right {
-                left: 50%;
-            }
-            .event::after {
+            .event::before {
                 content: '';
                 position: absolute;
-                width: 20px;
-                height: 20px;
-                right: -10px;
+                left: 16px;
+                top: 10px;
+                width: 12px;
+                height: 12px;
                 background-color: blue;
-                border: 4px solid white;
-                top: 15px;
                 border-radius: 50%;
                 z-index: 1;
-            }
-            .event.right::after {
-                left: -10px;
-            }
-            .event-content {
-                padding: 20px;
-                background-color: #f9f9f9;
-                border-radius: 6px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
         </style>
     """, unsafe_allow_html=True)
 
     # Create the timeline container
-    st.markdown('<div class="timeline">', unsafe_allow_html=True)
+    st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
+    st.markdown('<div class="timeline-line"></div>', unsafe_allow_html=True)
 
     # Loop through the entries and display them on the timeline
-    for i, entry in enumerate(entries):
+    for entry in entries:
         event_date = entry[2]
         normalized_position = parse_date(event_date)
 
@@ -191,26 +172,16 @@ def display_timeline():
 
         # Calculate the position of the event on the timeline
         position_ratio = (normalized_position - min_date) / total_time_span
-        position_percentage = position_ratio * 100
 
-        # Alternate events between left and right for better visual appeal
-        if i % 2 == 0:
-            event_class = "event left"
-        else:
-            event_class = "event right"
+        # Add spacing based on the position ratio
+        st.markdown(f'<div style="margin-top: {position_ratio * 100}px;"></div>', unsafe_allow_html=True)
 
-        # Display the event
-        st.markdown("""
-            <div class="{event_class}" style="top: {position_percentage}%;">
-                <div class="event-content">
-                    <h3>{entry[3]} ({entry[2]})</h3>
-                    <p><strong>Scientist:</strong> {entry[1]}</p>
-                    <p>{entry[4]}</p>
-                    <a href="{entry[5]}" target="_blank">Supporting Links</a>
-                    <p><strong>Tags:</strong> {entry[6]}</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        # Display the event as an expander
+        with st.expander(f"{entry[3]} ({entry[2]})"):
+            st.markdown(f"**Scientist:** {entry[1]}")
+            st.markdown(f"{entry[4]}")
+            st.markdown(f"[Supporting Links]({entry[5]})")
+            st.markdown(f"**Tags:** {entry[6]}")
 
     # Close the timeline container
     st.markdown('</div>', unsafe_allow_html=True)

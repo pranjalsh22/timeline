@@ -140,21 +140,15 @@ def display_timeline():
     # Calculate the total time span
     total_time_span = max_date - min_date
 
-    # Add custom CSS for the vertical line
+    # Add custom CSS for the background image
     st.markdown("""
         <style>
             .timeline-container {
                 position: relative;
-                margin-left: 50px;
-            }
-            .timeline-line {
-                position: absolute;
-                left: 50%;
-                top: 0;
-                bottom: 0;
-                width: 4px;
-                background-color: blue;
-                z-index: -1; /* Ensure the line is behind the expanders */
+                background-image: url('https://via.placeholder.com/4x1000/0000FF/FFFFFF?text=Timeline+Line');
+                background-repeat: repeat-y;
+                background-position: center;
+                padding-left: 50px;
             }
             .event {
                 position: relative;
@@ -164,7 +158,7 @@ def display_timeline():
             .event::before {
                 content: '';
                 position: absolute;
-                left: calc(50% - 6px); /* Center the circle on the line */
+                left: -20px;
                 top: 10px;
                 width: 12px;
                 height: 12px;
@@ -177,7 +171,6 @@ def display_timeline():
 
     # Create the timeline container
     st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
-    st.markdown('<div class="timeline-line"></div>', unsafe_allow_html=True)
 
     # Loop through the entries and display them on the timeline
     for entry in entries:

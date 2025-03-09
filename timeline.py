@@ -224,13 +224,13 @@ def display_timeline():
 
         # Display the event as an expander
         with st.expander(f"{entry[3]} ({entry[2]})"):
-            st.markdown('<div class="event-card">')
-            st.markdown(f"<h3>{entry[3]} ({entry[2]})</h3>")
-            st.markdown(f" <p><strong>Scientist:</strong> {entry[1]}</p>")
-            st.markdown(f"<p>{entry[4]}</p>")
-            st.markdown(f' <a href="{entry[5]}" target="_blank">Supporting Links</a>')
-            st.markdown(f'<p><strong>Tags:</strong> {entry[6]}</p>')
-            st.markdown(f"</div>")
+            st.markdown('<div class="event-card">', unsafe_allow_html=True)
+            st.markdown(f"<h3>{entry[3]} ({entry[2]})</h3>", unsafe_allow_html=True)
+            st.markdown(f" <p><strong>Scientist:</strong> {entry[1]}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p>{entry[4]}</p>", unsafe_allow_html=True)
+            st.markdown(f' <a href="{entry[5]}" target="_blank">Supporting Links</a>', unsafe_allow_html=True)
+            st.markdown(f'<p><strong>Tags:</strong> {entry[6]}</p>', unsafe_allow_html=True)
+            st.markdown(f"</div>", unsafe_allow_html=True)
             
 
 # ---------------------MAIN--------------------------------------------------------

@@ -88,8 +88,6 @@ def display_timeline():
 
     # Dynamically adjust the height of the timeline based on the events
     timeline_height = 1000  # Height of the timeline
-    right_column_width = 600  # Width for the right part (for expanders)
-    left_column_width = 50  # Reduced width of the left column for the white line
 
     # Create a container for the layout using st.columns with a 1:10 width ratio
     col1, col2 = st.columns([1, 10])  # 1:10 ratio, left for the line, right for events
@@ -128,7 +126,7 @@ def display_timeline():
 
             # Create the event expander with proper HTML structure
             st.markdown(
-                f"<div class=\"event\" style=\"position: relative; top: {height_position}px; left: 5%; width: 90%;\">"
+                f"<div class=\"event\" style=\"position: relative; top: {height_position}px; left: 5%; width: 90%; margin-bottom: 20px;\">"
                 "<div class=\"expander\">"
                 "<details>"
                 f"<summary>{entry[3]} ({entry[2]})</summary>"
@@ -141,8 +139,8 @@ def display_timeline():
                 "</div>", unsafe_allow_html=True
             )
 
-            # Update the height position for the next expander, adjusting the value based on the average height of the content
-            height_position += 200  # Adjust this value based on your content size
+            # Add additional margin between events to ensure spacing
+            height_position += 200  # Add extra spacing between events to prevent overlap
 
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):

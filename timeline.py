@@ -70,6 +70,23 @@ def fetch_entries():
         return data
     return []
 
+def update_entry(entry_id, scientist_name, discovery_date, title, description, links, tags):
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        UPDATE discoveries
+        SET scientist_name = %s,
+            discovery_date = %s,
+            title = %s,
+            description = %s,
+            links = %s,
+            tags = %s
+        WHERE id = %s
+        """, (scientist_name, discovery_date, title, description, links, tags, entry_id))
+        conn.commit()
+        conn.close()
+
 # Function to parse the date (handling BC and AD dates)
 def parse_date(date_str):
     try:
@@ -196,7 +213,9 @@ create_table()
 
 # Show form if authenticated
 if authenticate():
+    # Add new entry form
     with st.sidebar.form("add_entry_form"):
+        st.subheader("Add New Entry")
         scientist_name = st.text_input("Scientist Name")
         discovery_date = st.text_input("Date of Discovery (e.g., 300 BC, 1905 AD, or 1905)")
         title = st.text_input("Title of Discovery")
@@ -209,6 +228,29 @@ if authenticate():
         tags_str = ", ".join(tags)
         insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
         st.sidebar.success("Entry added successfully!")
+
+    # Edit existing entries
+    st.sidebar.subheader("Edit Existing Entry")
+    entries = fetch_entries()
+    entry_options = {f"{entry[3]} ({entry[2]})": entry for entry in entries}
+    selected_entry_key = st.sidebar.selectbox("Select Entry to Edit", list(entry_options.keys()))
+
+    if selected_entry_key:
+        selected_entry = entry_options[selected_entry_key]
+        with st.sidebar.form("edit_entry_form"):
+            st.subheader("Edit Entry")
+            scientist_name = st.text_input("Scientist Name", value=selected_entry[1])
+            discovery_date = st.text_input("Date of Discovery", value=selected_entry[2])
+            title = st.text_input("Title of Discovery", value=selected_entry[3])
+            description = st.text_area("Description", value=selected_entry[4])
+            links = st.text_input("Supporting Links", value=selected_entry[5])
+            tags = st.multiselect("Tags", ["Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics"], default=selected_entry[6].split(", "))
+            update_button = st.form_submit_button("Update Entry")
+
+        if update_button:
+            tags_str = ", ".join(tags)
+            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
+            st.sidebar.success("Entry updated successfully!")
 
 # Display the timeline
 display_timeline()

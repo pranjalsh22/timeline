@@ -149,11 +149,12 @@ def display_timeline():
             }
             .timeline-line {
                 position: absolute;
-                left: 20px;
+                left: 50%;
                 top: 0;
                 bottom: 0;
                 width: 4px;
                 background-color: blue;
+                z-index: -1; /* Ensure the line is behind the expanders */
             }
             .event {
                 position: relative;
@@ -163,7 +164,7 @@ def display_timeline():
             .event::before {
                 content: '';
                 position: absolute;
-                left: 16px;
+                left: calc(50% - 6px); /* Center the circle on the line */
                 top: 10px;
                 width: 12px;
                 height: 12px;

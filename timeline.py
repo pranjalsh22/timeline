@@ -1,3 +1,127 @@
+import datetime
+import streamlit as st
+import psycopg2
+
+# ----------------Access secrets----------------------------------------------------------------------------
+DB_NAME = st.secrets["db"]["name"]
+DB_USER = st.secrets["db"]["user"]
+DB_PASSWORD = st.secrets["db"]["password"]
+DB_HOST = st.secrets["db"]["host"]
+DB_PORT = st.secrets["db"]["port"]
+PASSCODE = st.secrets["app"]["passcode"]
+
+# ----------------Authenticate and connect----------------------------------------------------------------------------
+def authenticate():
+    passcode = st.sidebar.text_input("Enter Passcode", type="password")
+    return passcode == PASSCODE
+
+def get_connection():
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
+        )
+        return conn
+    except Exception as e:
+        st.error(f"Database connection failed: {e}")
+        return None
+
+# Create table if it doesn't exist
+def create_table():
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS discoveries (
+            id SERIAL PRIMARY KEY,
+            scientist_name TEXT,
+            discovery_date TEXT,
+            title TEXT,
+            description TEXT,
+            links TEXT,
+            tags TEXT
+        )
+        """)
+        conn.commit()
+        conn.close()
+
+# ---------------------------Data entry and access------------------------------------------------------------
+def insert_entry(scientist_name, discovery_date, title, description, links, tags):
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO discoveries (scientist_name, discovery_date, title, description, links, tags)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (scientist_name, discovery_date, title, description, links, tags))
+        conn.commit()
+        conn.close()
+
+def fetch_entries():
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM discoveries")
+        data = cursor.fetchall()
+        conn.close()
+        return data
+    return []
+
+def update_entry(entry_id, scientist_name, discovery_date, title, description, links, tags):
+    conn = get_connection()
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        UPDATE discoveries
+        SET scientist_name = %s,
+            discovery_date = %s,
+            title = %s,
+            description = %s,
+            links = %s,
+            tags = %s
+        WHERE id = %s
+        """, (scientist_name, discovery_date, title, description, links, tags, entry_id))
+        conn.commit()
+        conn.close()
+
+# Function to parse the date (handling BC and AD dates)
+def parse_date(date_str):
+    try:
+        # Strip any leading or trailing spaces from the input
+        date_str = date_str.strip()
+
+        # Check if the date contains "BC"
+        if 'BC' in date_str:
+            # Handle BC dates by removing 'BC' and converting the year into a negative number
+            date_str = date_str.replace('BC', '').strip()
+            if date_str.isdigit():
+                return -int(date_str)  # Make BC years negative (e.g., 250 BC -> -250)
+            else:
+                st.error(f"Invalid BC year format: {date_str}")
+                return None
+        elif 'AD' in date_str:
+            # Handle AD dates (convert it normally)
+            date_str = date_str.replace('AD', '').strip()
+            if date_str.isdigit():
+                return int(date_str)  # For AD years (e.g., 1905 AD -> 1905)
+            else:
+                st.error(f"Invalid AD year format: {date_str}")
+                return None
+        else:
+            # Handle simple years (e.g., 1905, 300) as AD years
+            if date_str.isdigit():
+                return int(date_str)  # AD dates are positive numbers (e.g., 1905 -> 1905)
+            else:
+                st.error(f"Invalid year format: {date_str}")
+                return None
+    except Exception as e:
+        st.error(f"Error parsing date '{date_str}': {e}")
+        return None
+
+# ----------------MAKING TIMELINE-----------------------------------------------
 def display_timeline():
     entries = fetch_entries()
 
@@ -8,17 +132,35 @@ def display_timeline():
         if parsed_date is not None:
             valid_entries.append((parsed_date, entry))
 
-    # Sort entries by parsed date
-    valid_entries.sort(key=lambda x: x[0])
+    # Add sorting options
+    sort_order = st.sidebar.selectbox("Sort Order", ["Ascending", "Descending"], index=0)
+    if sort_order == "Ascending":
+        valid_entries.sort(key=lambda x: x[0])
+    else:
+        valid_entries.sort(key=lambda x: x[0], reverse=True)
+
+    # Add tag filtering
+    all_tags = set()
+    for _, entry in valid_entries:
+        tags = entry[6].split(", ")
+        all_tags.update(tags)
+    selected_tags = st.sidebar.multiselect("Filter by Tags", list(all_tags), default=list(all_tags))
+
+    # Filter entries based on selected tags
+    filtered_entries = []
+    for parsed_date, entry in valid_entries:
+        tags = entry[6].split(", ")
+        if any(tag in selected_tags for tag in tags):
+            filtered_entries.append((parsed_date, entry))
 
     # Ensure there are valid dates to compute min and max
-    if not valid_entries:
-        st.error("No valid dates found in the entries.")
+    if not filtered_entries:
+        st.error("No valid entries found for the selected tags.")
         return
 
-    # Extract min and max dates from sorted entries
-    min_date = valid_entries[0][0]
-    max_date = valid_entries[-1][0]
+    # Extract min and max dates from filtered entries
+    min_date = filtered_entries[0][0]
+    max_date = filtered_entries[-1][0]
 
     # Calculate the total time span
     total_time_span = max_date - min_date
@@ -128,8 +270,8 @@ def display_timeline():
     # Display the glowing title
     st.markdown('<h1 class="glowing-title">Timeline of Great Thoughts</h1>', unsafe_allow_html=True)
 
-    # Loop through the sorted entries and display them on the timeline
-    for parsed_date, entry in valid_entries:
+    # Loop through the filtered entries and display them on the timeline
+    for parsed_date, entry in filtered_entries:
         # Calculate the position of the event on the timeline
         position_ratio = (parsed_date - min_date) / total_time_span
 
@@ -173,12 +315,11 @@ if authenticate():
         title = st.text_input("Title of Discovery")
         description = st.text_area("Description")
         links = st.text_input("Supporting Links (comma-separated)")
-        tags = st.multiselect("Tags", ["Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics"])
+        tags = st.text_input("Tags (comma-separated)", value="Optics, Quantum, Astro, Classical Mechanics, Thermodynamics")
         submit_button = st.form_submit_button("Add Entry")
 
     if submit_button:
-        tags_str = ", ".join(tags)
-        insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
+        insert_entry(scientist_name, discovery_date, title, description, links, tags)
         st.sidebar.success("Entry added successfully!")
 
     # Edit existing entries
@@ -196,12 +337,11 @@ if authenticate():
             title = st.text_input("Title of Discovery", value=selected_entry[3])
             description = st.text_area("Description", value=selected_entry[4])
             links = st.text_input("Supporting Links", value=selected_entry[5])
-            tags = st.multiselect("Tags", ["Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics"], default=selected_entry[6].split(", "))
+            tags = st.text_input("Tags", value=selected_entry[6])
             update_button = st.form_submit_button("Update Entry")
 
         if update_button:
-            tags_str = ", ".join(tags)
-            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags_str)
+            update_entry(selected_entry[0], scientist_name, discovery_date, title, description, links, tags)
             st.sidebar.success("Entry updated successfully!")
 
 # Display the timeline

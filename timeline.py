@@ -230,7 +230,7 @@ def display_timeline():
             st.markdown(f"<p>{entry[4]}</p>")
             st.markdown(f' <a href="{entry[5]}" target="_blank">Supporting Links</a>')
             st.markdown(f'<p><strong>Tags:</strong> {entry[6]}</p>')
-                st.markdown(f"</div>")
+            st.markdown(f"</div>")
             
 
 # ---------------------MAIN--------------------------------------------------------

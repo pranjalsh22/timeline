@@ -121,6 +121,14 @@ def parse_date(date_str):
         st.error(f"Error parsing date '{date_str}': {e}")
         return None
 
+# Function to reset form inputs
+def reset_form():
+    st.session_state["scientist_name"] = ""
+    st.session_state["discovery_date"] = ""
+    st.session_state["title"] = ""
+    st.session_state["description"] = ""
+    st.session_state["links"] = ""
+    st.session_state["tags"] = []
 # ----------------MAKING TIMELINE-----------------------------------------------
 def display_timeline():
     entries = fetch_entries()
@@ -325,7 +333,9 @@ if authenticate():
         tags_str = ", ".join(tags)
         insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
         st.sidebar.success("Entry added successfully!")
-
+        reset_form()
+    
+    
     # Edit existing entries
     st.sidebar.subheader("Edit Existing Entry")
     entries = fetch_entries()

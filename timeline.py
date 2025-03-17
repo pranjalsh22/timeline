@@ -328,11 +328,12 @@ if authenticate():
         links = st.text_input("Supporting Links (comma-separated)")
         tags = st.multiselect("Tags (IMPORTANT**)", ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro", "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"])
         submit_button = st.form_submit_button("Add Entry")
-
+        reset_button = st.form_submit_button("Reset form")
     if submit_button:
         tags_str = ", ".join(tags)
         insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
         st.sidebar.success("Entry added successfully!")
+    if reset_button:
         reset_form()
     
     

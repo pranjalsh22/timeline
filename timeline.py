@@ -236,3 +236,14 @@ if authenticate():
             st.sidebar.success("Entry updated successfully!")
 
 display_timeline()
+
+DB_PATH = os.path.join(os.getcwd(), "timeline.db")
+
+if os.path.exists(DB_PATH):
+    with open(DB_PATH, "rb") as f:
+        st.sidebar.download_button(
+            label="📥 Download database backup",
+            data=f,
+            file_name="timeline.db",
+            mime="application/octet-stream"
+        )

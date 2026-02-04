@@ -187,21 +187,25 @@ def display_timeline():
 st.markdown("<br>", unsafe_allow_html=True)
 
 if authenticate():
-    with st.sidebar.form("add_entry_form", clear_on_submit=True):
-        st.subheader("Add New Entry")
-        scientist_name = st.text_input("Scientist Name")
-        discovery_date = st.text_input("Date of Discovery (e.g., 300 BC, 1905 AD, or 1905)")
-        title = st.text_input("Title of Discovery")
-        description = st.text_area("Description")
-        links = st.text_input("Supporting Links")
-        tags = st.multiselect("Tags (IMPORTANT**)", ["Biology", "Philosophy", "Mathematics", "Physics", "Optics", "Quantum", "Astro",
-                                                     "Classical Mechanics", "Thermodynamics","Statistical","Electronics","Material Science","Computer Science"])
-        submit_button = st.form_submit_button("Add Entry")
-
     if submit_button:
-        tags_str = ", ".join(tags)
-        insert_entry(scientist_name, discovery_date, title, description, links, tags_str)
-        st.sidebar.success("Entry added successfully!")
+        # Strip whitespace and validate
+        if not scientist_name.strip():
+            st.sidebar.error("Scientist name is required.")
+        elif not discovery_date.strip():
+            st.sidebar.error("Discovery date is required.")
+        elif not title.strip():
+            st.sidebar.error("Title is required.")
+        elif not description.strip():
+            st.sidebar.error("Description is required.")
+        elif not links.strip():
+            st.sidebar.error("At least one supporting link is required.")
+        elif not tags or len(tags) == 0:
+            st.sidebar.error("You must select at least one tag.")
+        else:
+            tags_str = ", ".join(tags)
+            insert_entry(scientist_name.strip(), discovery_date.strip(), title.strip(), description.strip(), links.strip(), tags_str)
+            st.sidebar.success("Entry added successfully!")
+            st.rerun()
 
     st.sidebar.subheader("Edit Existing Entry")
     entries = fetch_entries()

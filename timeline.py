@@ -1,7 +1,7 @@
 import datetime
 import streamlit as st
 import sqlite3
-
+import os
 # ----------------Access secrets----------------------------------------------------------------------------
 PASSCODE = st.secrets["app"]["passcode"]
 
